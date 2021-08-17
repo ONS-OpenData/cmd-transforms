@@ -8,14 +8,6 @@ from databakerUtils.v4Functions import v4Integers
 from datetime import datetime, timedelta
 
 
-
-tabs = loadxlstabs(file)
-tabs = [tab for tab in tabs if 'weekly' in tab.name.lower()]
-
-data_marker_missing_weeks = '..'
-data_marker_missing_data = '..'
-
-
 def transform(location):
     # input file is an xlsx
     if not location.endswith('/'):
