@@ -10,7 +10,9 @@ from datetime import datetime, timedelta
 
 def transform(location):
     # input file is an xlsx
-    if not location.endswith('/'):
+    if location == '':
+        pass
+    elif not location.endswith('/'):
         location += '/'
     
     files = glob.glob(location + '*.xlsx')
