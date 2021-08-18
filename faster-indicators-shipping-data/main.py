@@ -9,12 +9,12 @@ from datetime import datetime, timedelta
 
 
 def transform(location):
-    # input file is an xlsx
     if location == '':
         pass
     elif not location.endswith('/'):
         location += '/'
     
+    # input file is an xlsx
     files = glob.glob(location + '*.xlsx')
     # takes 1 input file
     assert len(files) == 1, f"transform only takes 1 input file, {len(files)} were found"
