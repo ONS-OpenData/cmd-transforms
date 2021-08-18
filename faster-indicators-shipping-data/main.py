@@ -110,6 +110,8 @@ def transform(location):
 
     df.to_csv(output_file, index=False)
     SparsityFiller(output_file, data_marker_missing_weeks)
+    
+    return output_file
         
 def WeekNumberLabels(value):
     number = value.split('-')[-1]
