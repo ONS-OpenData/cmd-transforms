@@ -7,7 +7,7 @@ def transform(file):
     """
 
     df = pd.read_csv(file, dtype=str)
-    columns = lsit(df.columns)
+    columns = list(df.columns)
     print(f"columns from function - {columns}")
     return columns
         
