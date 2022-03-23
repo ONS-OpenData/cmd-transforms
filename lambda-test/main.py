@@ -1,6 +1,5 @@
 
 import pandas as pd
-import glob
 
 def transform(file):
     """
