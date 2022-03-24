@@ -7,8 +7,10 @@ def transform(files):
     """
     assert type(files) == list, f"transform takes in a list, not {type(files)}"
     assert len(files) == 1, f"transform only takes in 1 source file, not {len(files)}"
-
+    file = files[0]
     output_file = "/tmp/v4-cpih.csv"
+    
+    df = pd.read_csv(file, dtype=str)
 
     df['Time'] = df['time']
 
