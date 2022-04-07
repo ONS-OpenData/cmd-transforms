@@ -7,9 +7,9 @@ def transform(files):
     assert len(files) == 1, f"transform only takes in 1 source file, not {len(files)}"
     file = files[0]
     output_file = "/tmp/v4-cpih01.csv"
-    print("reading in file")
+    
     df = pd.read_csv(file, dtype=str)
-    print("file read")
+    
     # check on source data to make sure obs are only to 1 dp
     df['v4_0'] = df['v4_0'].apply(Check_Source_Data)
 
@@ -35,7 +35,7 @@ def transform(files):
     previous_df = Get_Latest_Version('cpih01', 'time-series')
     df = pd.concat([df, previous_df])
     """
-    print("writing file")
+    
     df.to_csv(output_file, index=False)
 
     return output_file
