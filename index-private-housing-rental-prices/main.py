@@ -1,5 +1,5 @@
 import pandas as pd
-#from databakerUtils.sparsityFunctions import SparsityFiller
+sparsity_functions import SparsityFiller
 
 def transform(files):
     assert type(files) == list, f"transform takes in a list, not {type(files)}"
@@ -28,7 +28,7 @@ def transform(files):
     df.loc[df["v4_1"] == "-", "v4_1"] = ""
 
     df.to_csv(output_file, index=False)
-    #SparsityFiller(output_file)
+    SparsityFiller(output_file)
     print("Transform Complete")
     return output_file
 
