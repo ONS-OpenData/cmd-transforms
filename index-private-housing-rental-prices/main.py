@@ -1,7 +1,7 @@
 import pandas as pd
 #from databakerUtils.sparsityFunctions import SparsityFiller
 
-def Transform(files):
+def transform(files):
     assert type(files) == list, f"transform takes in a list, not {type(files)}"
     assert len(files) == 1, f"transform only takes in 1 source file, not {len(files)}"
     file = files[0]
