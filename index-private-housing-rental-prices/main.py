@@ -1,5 +1,4 @@
 import pandas as pd
-#sys.path.append("/tmp/")
 from sparsity_functions import SparsityFiller
 
 def transform(files):
