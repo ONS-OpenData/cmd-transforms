@@ -1,6 +1,6 @@
 import pandas as pd
 #sys.path.append("/tmp/")
-#from sparsity_functions import SparsityFiller
+from sparsity_functions import SparsityFiller
 
 def transform(files):
     assert type(files) == list, f"transform takes in a list, not {type(files)}"
