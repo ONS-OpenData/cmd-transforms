@@ -17,12 +17,15 @@ def transform(files):
         time = tab.excel_ref("E6").expand(RIGHT).is_not_blank().is_not_whitespace()
         geog = tab.excel_ref("A8").expand(DOWN).is_not_blank().is_not_whitespace()
         geog -= junk
+        geog_labels = tab.excel_ref('B8:D8').expand(DOWN).is_not_blank().is_not_whitespace()
+        geog_labels -= junk
         
         obs = geog.waffle(time)
         
         dimensions = [
                 HDim(time, TIME, DIRECTLY, ABOVE),
-                HDim(geog, GEOG, DIRECTLY, LEFT)
+                HDim(geog, GEOG, DIRECTLY, LEFT),
+                HDim(geog_labels, 'geog_labels', DIRECTLY, LEFT)
                 ]
         
         conversionsegment = ConversionSegment(tab, dimensions, obs).topandas()
