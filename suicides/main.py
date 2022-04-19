@@ -6,7 +6,7 @@ def transform(files):
     assert len(files) == 1, f"transform only takes in 1 source file, not {len(files)}"
     file = files[0]
     output_file = "/tmp/v4-suicides-in-the-uk.csv"
-
+    
     tabs = loadxlstabs(file, ["Table 1"])
 
     """DataBaking"""
@@ -34,12 +34,11 @@ def transform(files):
     df = pd.concat(conversionsegments)
 
     '''Post processing'''
-    df["V4_0"] = df["OBS"].apply(v4Integers)
+    df["v4_0"] = df["OBS"].apply(v4Integers)
     df["Time"] = df["TIME"]
     df = df[df["GEOG"] != "J99000001"]
 
     df = df.rename(columns={
-            "OBS": "v4_0",
             "TIME": "calendar-years",
             "GEOG": "administrative-geography",
             "geog_labels": "Geography"
