@@ -5,7 +5,7 @@ def transform(files, **kwargs):
     if 'location' in kwargs.keys():
         location = kwargs['location']
         if location == '':
-            continue
+            pass
         elif not location.endswith('/'):
             location += '/'
     else:
