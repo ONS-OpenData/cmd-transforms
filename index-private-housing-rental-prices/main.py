@@ -4,7 +4,9 @@ from sparsity_functions import SparsityFiller
 def transform(files, **kwargs):
     if 'location' in kwargs.keys():
         location = kwargs['location']
-        if not location.endswith('/'):
+        if location == '':
+            continue
+        elif not location.endswith('/'):
             location += '/'
     else:
         location = '' 
