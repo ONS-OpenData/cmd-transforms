@@ -14,6 +14,8 @@ def transform(files, **kwargs):
     assert type(files) == list, f"transform takes in a list, not {type(files)}"
     assert len(files) == 1, f"transform only takes in 1 source file, not {len(files)}"
     file = files[0]
+    
+    dataset_id = "index-private-housing-rental-prices"
     output_file = f"{location}v4-index-private-housing-rental-prices.csv"
 
     source = pd.read_csv(file, dtype=str)
@@ -39,7 +41,7 @@ def transform(files, **kwargs):
     df.to_csv(output_file, index=False)
     SparsityFiller(output_file)
     print("Transform Complete")
-    return output_file
+    return {dataset_id: output_file}
 
 def time_values(value):
     # changes format from mmmyyyy to mmm-yy
