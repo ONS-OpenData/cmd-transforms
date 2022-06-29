@@ -165,7 +165,7 @@ def weekly_deaths_by_region(source_tabs, **kwargs):
     
     # removed pre filled sparsity
     latest_df = latest_df[latest_df['Data Marking'] != 'x']
-    latest_df = latest_df.rename(columns={'v4_1':'v4_0'}).drop(['Data Marking'], axis=1)
+    latest_df = latest_df.rename(columns={'v4_1':'v4_0', 'V4_1':'V4_0'}).drop(['Data Marking'], axis=1)
     latest_df = latest_df.reset_index(drop=True)
     
     # combine latest version with new version
