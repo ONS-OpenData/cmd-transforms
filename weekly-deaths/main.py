@@ -22,7 +22,7 @@ def transform(files, **kwargs):
             }
     
     # file for region and age&sex
-    published_file = [file for file in files if 'published' in file.lower()][0]
+    published_file = [file for file in files if 'publication' in file.lower()][0]
     tabs = loadxlstabs(published_file)
     
     output_file = weekly_deaths_by_region(tabs)
