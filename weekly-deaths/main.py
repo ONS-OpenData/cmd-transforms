@@ -127,7 +127,6 @@ def weekly_deaths_by_region(source_tabs, **kwargs):
             conversionsegments.append(conversionsegment)
             
     df = pd.concat(conversionsegments)
-    df1 = v4Writer('file-path', df, asFrame=True)
     
     ''' Post processing '''
     df['OBS'] = df['OBS'].apply(v4Integers)
