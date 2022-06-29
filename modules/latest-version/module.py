@@ -1,5 +1,5 @@
 import pandas as pd
-import io
+import io, requests
 
 def get_latest_version(dataset, edition):
     '''
