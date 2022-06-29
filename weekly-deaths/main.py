@@ -35,6 +35,11 @@ def transform(files, **kwargs):
     return output
 
 
+def v4Integers(value):
+    new_value = str(value)
+    if new_value.endswith('.0'):
+        new_value = new_value[:-2]
+    return new_value
 
 def weekly_deaths_by_region(source_tabs, **kwargs):
     if 'location' in kwargs.keys():
@@ -491,8 +496,3 @@ def GeographyCodesFromLabels(value):
             }
     return lookup[value]
 
-def v4Integers(value):
-    new_value = str(value)
-    if new_value.endswith('.0'):
-        new_value = new_value[:-2]
-    return new_value
