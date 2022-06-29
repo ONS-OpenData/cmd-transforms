@@ -1,5 +1,5 @@
 import pandas as pd
-import io, requests
+import io, requests, json
 
 def get_latest_version(dataset, edition):
     '''
