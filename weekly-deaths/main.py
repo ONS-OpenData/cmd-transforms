@@ -35,12 +35,6 @@ def transform(files, **kwargs):
     return output
 
 
-def v4Integers(value):
-    new_value = str(value)
-    if new_value.endswith('.0'):
-        new_value = new_value[:-2]
-    return new_value
-
 def weekly_deaths_by_region(source_tabs, **kwargs):
     if 'location' in kwargs.keys():
         location = kwargs['location']
@@ -383,6 +377,12 @@ def V4Checker(v4, dataset):
 
 def Slugize(value):
     new_value = value.replace(' ', '-').replace(':', '').lower()
+    return new_value
+
+def V4Integers(value):
+    new_value = str(value)
+    if new_value.endswith('.0'):
+        new_value = new_value[:-2]
     return new_value
 
 def YearExtractor(value):
