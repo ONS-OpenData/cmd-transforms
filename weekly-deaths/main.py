@@ -128,7 +128,7 @@ def weekly_deaths_by_region(source_tabs, **kwargs):
     df = pd.concat(conversionsegments)
     
     ''' Post processing '''
-    df['OBS'] = df['OBS'].apply(v4Integers)
+    df['OBS'] = df['OBS'].apply(V4Integers)
     
     df['Time'] = df['TIME'].apply(YearExtractor)
     df['Time_codelist'] = df['Time']
