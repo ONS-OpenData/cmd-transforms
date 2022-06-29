@@ -184,7 +184,7 @@ def weekly_deaths_by_region(source_tabs, **kwargs):
     new_df.to_csv(output_file, index=False)
     SparsityFiller(output_file, 'x')
     
-    return {dataset_id: output_file}
+    return output_file
 
 
 
