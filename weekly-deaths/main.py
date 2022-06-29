@@ -35,7 +35,6 @@ def transform(files, **kwargs):
     return output
 
 
-
 def weekly_deaths_by_region(source_tabs, **kwargs):
     if 'location' in kwargs.keys():
         location = kwargs['location']
@@ -129,7 +128,7 @@ def weekly_deaths_by_region(source_tabs, **kwargs):
     df = pd.concat(conversionsegments)
     
     ''' Post processing '''
-    df['OBS'] = df['OBS'].apply(v4Integers)
+    df['OBS'] = df['OBS'].apply(V4Integers)
     
     df['Time'] = df['TIME'].apply(YearExtractor)
     df['Time_codelist'] = df['Time']
@@ -380,6 +379,12 @@ def Slugize(value):
     new_value = value.replace(' ', '-').replace(':', '').lower()
     return new_value
 
+def V4Integers(value):
+    new_value = str(value)
+    if new_value.endswith('.0'):
+        new_value = new_value[:-2]
+    return new_value
+
 def YearExtractor(value):
     # extracts the year from datetime
     as_datetime = datetime.datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
@@ -491,8 +496,3 @@ def GeographyCodesFromLabels(value):
             }
     return lookup[value]
 
-def v4Integers(value):
-    new_value = str(value)
-    if new_value.endswith('.0'):
-        new_value = new_value[:-2]
-    return new_value
