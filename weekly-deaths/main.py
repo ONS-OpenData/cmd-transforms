@@ -518,7 +518,7 @@ def weekly_deaths_by_age_sex(source_tabs, **kwargs):
     
     # removing duplicates
     # dataframe without obs to find any duplicates
-    temp_df = new_df.drop(['V4_0'], axis=1).reset_index(drop=True)
+    temp_df = new_df.drop(['v4_0'], axis=1).reset_index(drop=True)
     temp_df = temp_df.drop_duplicates()
     # index of rows to keep
     index_to_keep = temp_df.index
