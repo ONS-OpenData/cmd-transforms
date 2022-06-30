@@ -174,7 +174,6 @@ def weekly_deaths_by_region(source_tabs, **kwargs):
     
     # combine latest version with new version
     new_df = pd.concat([latest_df, df])
-    #assert len(new_df) == len(new_df.drop_duplicates()), 'Weekly deaths by region has some duplicate data which it shouldnt'
     
     # removing duplicates
     # dataframe without obs to find any duplicates
@@ -183,7 +182,6 @@ def weekly_deaths_by_region(source_tabs, **kwargs):
     # index of rows to keep
     index_to_keep = temp_df.index
     new_df = new_df.iloc[index_to_keep]
-    
     
     V4Checker(new_df, 'region')
     new_df.to_csv(output_file, index=False)
@@ -463,7 +461,6 @@ def weekly_deaths_by_age_sex(source_tabs, **kwargs):
             conversionsegments.append(conversionsegment)
             
     df = pd.concat(conversionsegments)
-    df1 = v4Writer('file-path', data, asFrame=True)
     
     ''' Post processing '''
     df['OBS'] = df['OBS'].apply(V4Integers)
@@ -484,7 +481,6 @@ def weekly_deaths_by_age_sex(source_tabs, **kwargs):
     df['age_codelist'] = df['age'].apply(AgeCodes)
     
     df['death_type_codelist'] = df['death_type'].apply(Slugize)
-    
     
     df = df.rename(columns={
             'OBS':'v4_0',
@@ -508,7 +504,6 @@ def weekly_deaths_by_age_sex(source_tabs, **kwargs):
     
     # pull latest v4 from CMD
     latest_df = get_latest_version('weekly-deaths-age-sex', 'covid-19')
-    #latest_df = pd.read_csv('inputs/weekly-deaths/weekly-deaths-age-sex-covid-19.csv', dtype=str)
     
     # removed pre filled sparsity
     latest_df = latest_df[latest_df['Data Marking'] != 'x']
