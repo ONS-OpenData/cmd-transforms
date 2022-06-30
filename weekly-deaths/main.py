@@ -32,10 +32,21 @@ def transform(files, **kwargs):
     # age&sex data
     output_file = weekly_deaths_by_age_sex(tabs, location=location)
     output['weekly-deaths-age-sex'] = output_file
-    
-    
-    
-    
+
+    # file for health board and local authority
+    year_of_data = '2022' # changes with each edition
+    lahb_file = [file for file in files if 'lahb' in file] 
+    if len(lahb_file) == 0:
+        lahb_file = [file for file in files if 'la_hb' in file.lower()][0]
+    else: lahb_file = lahb_file[0]
+        
+    # health board and local authority data
+    reg_data = pd.read_excel(lahb_file, sheet_name='Registrations - All data', skiprows=3)
+    occ_data = pd.read_excel(lahb_file, sheet_name='Occurrences - All data', skiprows=3)
+
+    output_file_hb, output_file_la = weekly_deaths_by_la_hb(registration_tabs, occurrence_tabs, year_of_data, location=location)
+    output['weekly-deaths-health-board'] = output_file_hb
+    output['weekly-deaths-local-authority'] = output_file_la
     
     return output
 
@@ -529,6 +540,79 @@ def weekly_deaths_by_age_sex(source_tabs, **kwargs):
     SparsityFiller(output_file, 'x')
     
     return output_file
+
+def weekly_deaths_by_la_hb(registration_tabs, occurrence_tabs, year, **kwargs):
+    if 'location' in kwargs.keys():
+        location = kwargs['location']
+        if location == '':
+            pass
+        elif not location.endswith('/'):
+            location += '/'
+    else:
+        location = ''
+        
+    dataset_id_la = "weekly-deaths-local-authority"
+    output_file_la = f"{location}v4-{dataset_id_la}.csv"
+    dataset_id_hb = "weekly-deaths-health-board"
+    output_file_hb = f"{location}v4-{dataset_id_hb}.csv"
+    
+    year_of_data = year
+    
+    reg_data = registration_tabs.rename(columns=lambda x: x.strip().lower())
+    occ_data = occurrence_tabs.rename(columns=lambda x: x.strip().lower())
+    
+    #add registration or occurrence
+    reg_data['registrationoroccurrence'] = 'Registrations'
+    occ_data['registrationoroccurrence'] = 'Occurrences'
+    
+    df = pd.concat([reg_data, occ_data])
+    
+    df['calendar-years'] = year_of_data
+    df['time'] = df['calendar-years']
+    
+    df['cause-of-death'] = df['cause of death'].apply(Slugize)
+    df['place-of-death'] = df['place of death'].apply(Slugize)
+    df['registration-or-occurrence'] = df['registrationoroccurrence'].apply(Slugize)
+    
+    df['week-number'] = df['week number'].apply(lambda x: 'week-' + str(x))
+    df['week number'] = 'Week ' + df['week number'].apply(WeekNumberLabels)
+    
+    df = df.rename(columns={
+            'number of deaths':'v4_0',
+            'time':'Time',
+            'cause of death':'CauseOfDeath',
+            'place of death':'PlaceOfDeath',
+            'week number':'Week',
+            'area name':'Geography',
+            'registrationoroccurrence':'RegistrationOrOccurrence'
+            }
+        )
+    
+    df = df[[
+            'v4_0', 'calendar-years', 'Time', 'area code', 'Geography', 'geography type', 
+            'week-number', 'Week', 'cause-of-death', 'CauseOfDeath', 'place-of-death', 'PlaceOfDeath',
+            'registration-or-occurrence', 'RegistrationOrOccurrence'
+            ]]
+    
+    df_hb = df[df['geography type'] != 'Local Authority'].drop(['geography type'], axis=1).rename(columns={
+            'area code':'local-health-board'
+            }
+    )
+    df_la = df[df['geography type'] == 'Local Authority'].drop(['geography type'], axis=1).rename(columns={
+            'area code':'administrative-geography'
+            }
+    )
+    
+    V4Checker(df_hb, 'health-board')
+    df_hb.to_csv(output_file_hb, index=False)
+    SparsityFiller(output_file_hb)
+    
+    V4Checker(df_la, 'local-authority')
+    df_la.to_csv(output_file_la, index=False)
+    SparsityFiller(output_file_la)
+
+    return output_file_hb, output_file_la
+    
 
 
 
