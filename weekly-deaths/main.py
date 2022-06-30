@@ -25,8 +25,13 @@ def transform(files, **kwargs):
     published_file = [file for file in files if 'publication' in file.lower()][0]
     tabs = loadxlstabs(published_file)
     
+    # region data
     output_file = weekly_deaths_by_region(tabs, location=location)
     output['weekly-deaths-region'] = output_file
+
+    # age&sex data
+    output_file = weekly_deaths_by_age_sex(tabs, location=location)
+    output['weekly-deaths-age-sex'] = output_file
     
     
     
@@ -187,8 +192,348 @@ def weekly_deaths_by_region(source_tabs, **kwargs):
     return output_file
 
 
-
-
+def weekly_deaths_by_age_sex(source_tabs, **kwargs):
+    if 'location' in kwargs.keys():
+        location = kwargs['location']
+        if location == '':
+            pass
+        elif not location.endswith('/'):
+            location += '/'
+    else:
+        location = ''
+        
+    dataset_id = "weekly-deaths-age-sex"
+    output_file = f"{location}v4-weekly-deaths-age-sex.csv"
+    
+    
+    tabs = source_tabs
+    tabs = [tab for tab in tabs if tab.name in ('2', '4', '5')]
+    
+    conversionsegments = []
+    for tab in tabs:
+        geography = 'K04000001'
+        
+        if tab.name == '2':
+            # check to make sure data has not moved
+            assert tab.excel_ref('A7').value == 'Week number', f"data seems to have moved, A7 should be 'Week number', not {tab.excel_ref('A6').value}"
+            
+            # table start points
+            table_a = tab.excel_ref('A').filter(contains_string('Table 2a'))
+            table_b = tab.excel_ref('A').filter(contains_string('Table 2b'))
+            table_c = tab.excel_ref('A').filter(contains_string('Table 2c'))
+            
+            # table 2a
+            week_number_a = table_a.shift(0, 2).expand(DOWN).is_not_blank().is_not_whitespace()
+            week_number_a -= table_b.expand(DOWN)
+            
+            date_a = week_number_a.shift(1, 0)
+            
+            age_groups_a = table_a.shift(2, 1).expand(RIGHT).is_not_blank().is_not_whitespace()
+            
+            obs_a = week_number_a.waffle(age_groups_a)
+            
+            dimensions_a = [
+                    HDim(date_a, TIME, DIRECTLY, LEFT),
+                    HDimConst(GEOG, geography),
+                    HDim(week_number_a, 'week_number', DIRECTLY, LEFT),
+                    HDimConst('sex', 'All'),
+                    HDim(age_groups_a, 'age', DIRECTLY, ABOVE),
+                    HDimConst('death_type', 'Total registered deaths')
+                    ]
+            
+            for cell in dimensions_a[0].hbagset:
+                dimensions_a[0].AddCellValueOverride(cell, str(cell.value))
+            
+            conversionsegment = ConversionSegment(tab, dimensions_a, obs_a).topandas()
+            conversionsegments.append(conversionsegment)
+            
+            # table 2b
+            week_number_b = table_b.shift(0, 2).expand(DOWN).is_not_blank().is_not_whitespace()
+            week_number_b -= table_c.expand(DOWN)
+            
+            date_b = week_number_b.shift(1, 0)
+            
+            age_groups_b = table_b.shift(2, 1).expand(RIGHT).is_not_blank().is_not_whitespace()
+            
+            obs_b = week_number_b.waffle(age_groups_b)
+            
+            dimensions_b = [
+                    HDim(date_b, TIME, DIRECTLY, LEFT),
+                    HDimConst(GEOG, geography),
+                    HDim(week_number_b, 'week_number', DIRECTLY, LEFT),
+                    HDimConst('sex', 'Male'),
+                    HDim(age_groups_b, 'age', DIRECTLY, ABOVE),
+                    HDimConst('death_type', 'Total registered deaths')
+                    ]
+            
+            for cell in dimensions_b[0].hbagset:
+                dimensions_b[0].AddCellValueOverride(cell, str(cell.value))
+            
+            conversionsegment = ConversionSegment(tab, dimensions_b, obs_b).topandas()
+            conversionsegments.append(conversionsegment)
+            
+            # table 2c
+            week_number_c = table_c.shift(0, 2).expand(DOWN).is_not_blank().is_not_whitespace()
+            
+            date_c = week_number_c.shift(1, 0)
+            
+            age_groups_c = table_c.shift(2, 1).expand(RIGHT).is_not_blank().is_not_whitespace()
+            
+            obs_c = week_number_c.waffle(age_groups_c)
+            
+            dimensions_c = [
+                    HDim(date_c, TIME, DIRECTLY, LEFT),
+                    HDimConst(GEOG, geography),
+                    HDim(week_number_c, 'week_number', DIRECTLY, LEFT),
+                    HDimConst('sex', 'Female'),
+                    HDim(age_groups_c, 'age', DIRECTLY, ABOVE),
+                    HDimConst('death_type', 'Total registered deaths')
+                    ]
+            
+            for cell in dimensions_c[0].hbagset:
+                dimensions_c[0].AddCellValueOverride(cell, str(cell.value))
+            
+            conversionsegment = ConversionSegment(tab, dimensions_c, obs_c).topandas()
+            conversionsegments.append(conversionsegment)
+            
+        elif tab.name == '4':
+            # check to make sure data has not moved
+            assert tab.excel_ref('A7').value == 'Week number', f"data seems to have moved, A7 should be 'Week number', not {tab.excel_ref('A6').value}"
+            
+            # table start points
+            table_a = tab.excel_ref('A').filter(contains_string('Table 4a'))
+            table_b = tab.excel_ref('A').filter(contains_string('Table 4b'))
+            table_c = tab.excel_ref('A').filter(contains_string('Table 4c'))
+            
+            # table 4a
+            week_number_a = table_a.shift(0, 2).expand(DOWN).is_not_blank().is_not_whitespace()
+            week_number_a -= table_b.expand(DOWN)
+            
+            date_a = week_number_a.shift(1, 0)
+            
+            age_groups_a = table_a.shift(2, 1).expand(RIGHT).is_not_blank().is_not_whitespace()
+            
+            obs_a = week_number_a.waffle(age_groups_a)
+            
+            dimensions_a = [
+                    HDim(date_a, TIME, DIRECTLY, LEFT),
+                    HDimConst(GEOG, geography),
+                    HDim(week_number_a, 'week_number', DIRECTLY, LEFT),
+                    HDimConst('sex', 'All'),
+                    HDim(age_groups_a, 'age', DIRECTLY, ABOVE),
+                    HDimConst('death_type', 'Deaths involving COVID-19: registrations')
+                    ]
+            
+            for cell in dimensions_a[0].hbagset:
+                dimensions_a[0].AddCellValueOverride(cell, str(cell.value))
+            
+            conversionsegment = ConversionSegment(tab, dimensions_a, obs_a).topandas()
+            conversionsegments.append(conversionsegment)
+            
+            # table 4b
+            week_number_b = table_b.shift(0, 2).expand(DOWN).is_not_blank().is_not_whitespace()
+            week_number_b -= table_c.expand(DOWN)
+            
+            date_b = week_number_b.shift(1, 0)
+            
+            age_groups_b = table_b.shift(2, 1).expand(RIGHT).is_not_blank().is_not_whitespace()
+            
+            obs_b = week_number_b.waffle(age_groups_b)
+            
+            dimensions_b = [
+                    HDim(date_b, TIME, DIRECTLY, LEFT),
+                    HDimConst(GEOG, geography),
+                    HDim(week_number_b, 'week_number', DIRECTLY, LEFT),
+                    HDimConst('sex', 'Male'),
+                    HDim(age_groups_b, 'age', DIRECTLY, ABOVE),
+                    HDimConst('death_type', 'Deaths involving COVID-19: registrations')
+                    ]
+            
+            for cell in dimensions_b[0].hbagset:
+                dimensions_b[0].AddCellValueOverride(cell, str(cell.value))
+            
+            conversionsegment = ConversionSegment(tab, dimensions_b, obs_b).topandas()
+            conversionsegments.append(conversionsegment)
+            
+            # table 4c
+            week_number_c = table_c.shift(0, 2).expand(DOWN).is_not_blank().is_not_whitespace()
+            
+            date_c = week_number_c.shift(1, 0)
+            
+            age_groups_c = table_c.shift(2, 1).expand(RIGHT).is_not_blank().is_not_whitespace()
+            
+            obs_c = week_number_c.waffle(age_groups_c)
+            
+            dimensions_c = [
+                    HDim(date_c, TIME, DIRECTLY, LEFT),
+                    HDimConst(GEOG, geography),
+                    HDim(week_number_c, 'week_number', DIRECTLY, LEFT),
+                    HDimConst('sex', 'Female'),
+                    HDim(age_groups_c, 'age', DIRECTLY, ABOVE),
+                    HDimConst('death_type', 'Deaths involving COVID-19: registrations')
+                    ]
+            
+            for cell in dimensions_c[0].hbagset:
+                dimensions_c[0].AddCellValueOverride(cell, str(cell.value))
+            
+            conversionsegment = ConversionSegment(tab, dimensions_c, obs_c).topandas()
+            conversionsegments.append(conversionsegment)
+            
+        elif tab.name == '5':
+            # check to make sure data has not moved
+            assert tab.excel_ref('A7').value == 'Week number', f"data seems to have moved, A7 should be 'Week number', not {tab.excel_ref('A6').value}"
+            
+            # table start points
+            table_a = tab.excel_ref('A').filter(contains_string('Table 5a'))
+            table_b = tab.excel_ref('A').filter(contains_string('Table 5b'))
+            table_c = tab.excel_ref('A').filter(contains_string('Table 5c'))
+            
+            # table 5a
+            week_number_a = table_a.shift(0, 2).expand(DOWN).is_not_blank().is_not_whitespace()
+            week_number_a -= table_b.expand(DOWN)
+            
+            date_a = week_number_a.shift(1, 0)
+            
+            age_groups_a = table_a.shift(2, 1).expand(RIGHT).is_not_blank().is_not_whitespace()
+            
+            obs_a = week_number_a.waffle(age_groups_a)
+            
+            dimensions_a = [
+                    HDim(date_a, TIME, DIRECTLY, LEFT),
+                    HDimConst(GEOG, geography),
+                    HDim(week_number_a, 'week_number', DIRECTLY, LEFT),
+                    HDimConst('sex', 'All'),
+                    HDim(age_groups_a, 'age', DIRECTLY, ABOVE),
+                    HDimConst('death_type', 'Deaths involving COVID-19: occurrences')
+                    ]
+            
+            for cell in dimensions_a[0].hbagset:
+                dimensions_a[0].AddCellValueOverride(cell, str(cell.value))
+            
+            conversionsegment = ConversionSegment(tab, dimensions_a, obs_a).topandas()
+            conversionsegments.append(conversionsegment)
+            
+            # table 5b
+            week_number_b = table_b.shift(0, 2).expand(DOWN).is_not_blank().is_not_whitespace()
+            week_number_b -= table_c.expand(DOWN)
+            
+            date_b = week_number_b.shift(1, 0)
+            
+            age_groups_b = table_b.shift(2, 1).expand(RIGHT).is_not_blank().is_not_whitespace()
+            
+            obs_b = week_number_b.waffle(age_groups_b)
+            
+            dimensions_b = [
+                    HDim(date_b, TIME, DIRECTLY, LEFT),
+                    HDimConst(GEOG, geography),
+                    HDim(week_number_b, 'week_number', DIRECTLY, LEFT),
+                    HDimConst('sex', 'Male'),
+                    HDim(age_groups_b, 'age', DIRECTLY, ABOVE),
+                    HDimConst('death_type', 'Deaths involving COVID-19: occurrences')
+                    ]
+            
+            for cell in dimensions_b[0].hbagset:
+                dimensions_b[0].AddCellValueOverride(cell, str(cell.value))
+            
+            conversionsegment = ConversionSegment(tab, dimensions_b, obs_b).topandas()
+            conversionsegments.append(conversionsegment)
+            
+            # table 5c
+            week_number_c = table_c.shift(0, 2).expand(DOWN).is_not_blank().is_not_whitespace()
+            
+            date_c = week_number_c.shift(1, 0)
+            
+            age_groups_c = table_c.shift(2, 1).expand(RIGHT).is_not_blank().is_not_whitespace()
+            
+            obs_c = week_number_c.waffle(age_groups_c)
+            
+            dimensions_c = [
+                    HDim(date_c, TIME, DIRECTLY, LEFT),
+                    HDimConst(GEOG, geography),
+                    HDim(week_number_c, 'week_number', DIRECTLY, LEFT),
+                    HDimConst('sex', 'Female'),
+                    HDim(age_groups_c, 'age', DIRECTLY, ABOVE),
+                    HDimConst('death_type', 'Deaths involving COVID-19: occurrences')
+                    ]
+            
+            for cell in dimensions_c[0].hbagset:
+                dimensions_c[0].AddCellValueOverride(cell, str(cell.value))
+            
+            conversionsegment = ConversionSegment(tab, dimensions_c, obs_c).topandas()
+            conversionsegments.append(conversionsegment)
+            
+    df = pd.concat(conversionsegments)
+    df1 = v4Writer('file-path', data, asFrame=True)
+    
+    ''' Post processing '''
+    df['OBS'] = df['OBS'].apply(V4Integers)
+    
+    df['Time'] = df['TIME'].apply(YearExtractor)
+    df['Time_codelist'] = df['Time']
+    
+    df['Geography'] = 'England and Wales'
+    
+    df['week_number'] = df['week_number'].apply(lambda x: str(int(float(x))))
+    df['week_number'] = 'Week ' + df['week_number']
+    df['week_number_codelist'] = df['week_number'].apply(Slugize)
+    
+    df['sex_codelist'] = df['sex'].apply(Slugize)
+    
+    df['age'] = df['age'].apply(AgeLabels)
+    df['age'] = df['age'].apply(AgeLabelsCorrector)
+    df['age_codelist'] = df['age'].apply(AgeCodes)
+    
+    df['death_type_codelist'] = df['death_type'].apply(Slugize)
+    
+    
+    df = df.rename(columns={
+            'OBS':'v4_0',
+            'Time_codelist':'calendar-years',
+            'GEOG':'administrative-geography',
+            'week_number_codelist':'week-number',
+            'week_number':'Week',
+            'sex':'Sex',
+            'sex_codelist':'sex',
+            'age_codelist':'age-groups',
+            'age':'AgeGroups',
+            'death_type_codelist':'recorded-deaths',
+            'death_type':'Deaths'
+            }
+        )
+    
+    df = df[[
+            'v4_0', 'calendar-years', 'Time', 'administrative-geography', 'Geography',
+            'week-number', 'Week', 'sex', 'Sex', 'age-groups', 'AgeGroups', 'recorded-deaths', 'Deaths'
+            ]]
+    
+    # pull latest v4 from CMD
+    latest_df = get_latest_version('weekly-deaths-age-sex', 'covid-19')
+    #latest_df = pd.read_csv('inputs/weekly-deaths/weekly-deaths-age-sex-covid-19.csv', dtype=str)
+    
+    # removed pre filled sparsity
+    latest_df = latest_df[latest_df['Data Marking'] != 'x']
+    latest_df = latest_df.rename(columns={'V4_1':'v4_0', 'v4_1':'v4_0'}).drop(['Data Marking'], axis=1)
+    latest_df = latest_df.reset_index(drop=True)
+    
+    # fix any incorrect age labels
+    latest_df['AgeGroups'] = latest_df['AgeGroups'].apply(AgeCorrector)
+    
+    # combine latest version with new version
+    new_df = pd.concat([df, latest_df])
+    
+    # removing duplicates
+    # dataframe without obs to find any duplicates
+    temp_df = new_df.drop(['V4_0'], axis=1).reset_index(drop=True)
+    temp_df = temp_df.drop_duplicates()
+    # index of rows to keep
+    index_to_keep = temp_df.index
+    new_df = new_df.iloc[index_to_keep]
+    
+    V4Checker(new_df, 'age-sex')
+    new_df.to_csv(output_file, index=False)
+    SparsityFiller(output_file, 'x')
+    
+    return output_file
 
 
 
