@@ -40,11 +40,8 @@ def transform(files, **kwargs):
         'v4_0', 'mmm-yy', 'Time', 'uk-only', 'Geography', 'cpih1dim1aggid', 'Aggregate'
         ]]
 
-    """
-    # Left out until lambda has public internet access
     previous_df = Get_Latest_Version('cpih01', 'time-series')
     df = pd.concat([df, previous_df])
-    """
     
     df.to_csv(output_file, index=False)
 
