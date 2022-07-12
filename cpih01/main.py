@@ -42,6 +42,7 @@ def transform(files, **kwargs):
 
     previous_df = Get_Latest_Version('cpih01', 'time-series')
     df = pd.concat([df, previous_df])
+    df = df.drop_duplicates()
     
     df.to_csv(output_file, index=False)
 
