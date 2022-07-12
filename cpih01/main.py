@@ -1,17 +1,27 @@
 import pandas as pd
-import requests, io
+from latest_version import get_latest_version
 
-def transform(files):
-    
+def transform(files, **kwargs):
+    if 'location' in kwargs.keys():
+        location = kwargs['location']
+        if location == '':
+            pass
+        elif not location.endswith('/'):
+            location += '/'
+    else:
+        location = '' 
+
     assert type(files) == list, f"transform takes in a list, not {type(files)}"
-    assert len(files) == 1, f"transform only takes in 1 source file, not {len(files)}"
+    assert len(files) == 1, f"transform only takes in 1 source file, not {len(files)} /n {files}"
     file = files[0]
-    output_file = "/tmp/v4-cpih01.csv"
+
+    dataset_id = "cpih01"
+    output_file = f"{location}v4-{dataset_id}.csv"
     
     df = pd.read_csv(file, dtype=str)
     
     # check on source data to make sure obs are only to 1 dp
-    df['v4_0'] = df['v4_0'].apply(Check_Source_Data)
+    df['v4_0'] = df['v4_0'].apply(check_source_data)
 
     df['Time'] = df['time']
 
@@ -38,9 +48,9 @@ def transform(files):
     
     df.to_csv(output_file, index=False)
 
-    return output_file
+    return {dataset_id: output_file}
 
-def Check_Source_Data(value):
+def check_source_data(value):
     # checks source data to make sure obs are only to 1 dp 
     number = str(value)
     if '.' not in number:
@@ -50,24 +60,4 @@ def Check_Source_Data(value):
     number_of_dp = len(decimal)
     assert number_of_dp == 1, f"{value} is not to 1 decimal place"
     return value
-
-def Get_Latest_Version(dataset, edition):
-    '''
-    Pulls the latest v4 from CMD for a given dataset and edition
-    '''
-    editions_url = 'https://api.beta.ons.gov.uk/v1/datasets/{}/editions/{}/versions'.format(dataset, edition)
-    items = requests.get(editions_url + '?limit=1000').json()['items']
-
-    # get latest version number
-    latest_version_number = items[0]['version']
-    assert latest_version_number == len(items), 'Get_Latest_Version for /{}/editions/{} - number of versions does not match latest version number'.format(dataset, edition)
-    # get latest version URL
-    url = editions_url + "/" + str(latest_version_number)
-    # get latest version data
-    latest_version = requests.get(url).json()
-    # decode data frame
-    file_location = requests.get(latest_version['downloads']['csv']['href'])
-    file_object = io.StringIO(file_location.content.decode('utf-8'))
-    df = pd.read_csv(file_object, dtype=str)
-    return df
 
