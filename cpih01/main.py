@@ -40,7 +40,7 @@ def transform(files, **kwargs):
         'v4_0', 'mmm-yy', 'Time', 'uk-only', 'Geography', 'cpih1dim1aggid', 'Aggregate'
         ]]
 
-    previous_df = Get_Latest_Version('cpih01', 'time-series')
+    previous_df = get_latest_version('cpih01', 'time-series')
     df = pd.concat([df, previous_df])
     df = df.drop_duplicates()
     
