@@ -71,7 +71,7 @@ def transform(files, **kwargs):
     df['v4_0'] = df['v4_0'].apply(v4Integers) #changes floats to string-integers
 
     print('Reading in previous version')
-    previous_df = get_latest_version()
+    previous_df = get_latest_version('trade', 'time-series')
     new_df = pd.concat([previous_df, df])
 
     new_df['countries-and-territories'] = new_df['countries-and-territories'].apply(CountryCorrector)
