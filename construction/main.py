@@ -86,15 +86,14 @@ def transform(files, **kwargs):
     df['TypeOfWork'] = df['category']  
   
     df = df.rename(columns={
-          'OBS':'v4_1',
-          'DATAMARKER':'Data Marking',
+          'OBS':'v4_0',
           'TIME':'Time', 
           'GEOG':'administrative-geography'
               }
         )
   
     df = df[[
-          'v4_1', 'Data Marking', 'years-quarters-months', 'Time', 'administrative-geography', 'Geography',
+          'v4_0', 'years-quarters-months', 'Time', 'administrative-geography', 'Geography',
           'seasonal-adjustment', 'SeasonalAdjustment', 'construction-series-type', 'SeriesType',
           'construction-classifications', 'TypeOfWork'
           ]]
@@ -139,6 +138,10 @@ def timeCodesNew(value):
         as_datetime = datetime.datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
         new_value = datetime.datetime.strftime(as_datetime, '%Y - %b')
         return new_value
+    elif len(value) == 8:
+        year = value[-4:]
+        month = value[:-4].strip()
+        return f"{year} - {month}"
     else:
         year = value[-4:]
         quarter = value[:-4].strip()
@@ -216,3 +219,5 @@ def constructionClassificationLabels(value):
             'Repair and Maintenance - All Work':'All work'
             }
     return lookup[value]
+
+transform(['bulletindataset2.xlsx'])
