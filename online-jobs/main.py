@@ -85,6 +85,7 @@ def transform(files, **kwargs):
         
     df = pd.concat(df_list).reset_index(drop=True)
     
+    df['Data Marking'] = df['Data Marking'].fillna('nan')
     print(f"List of imputed values are {df['Data Marking'].unique()}")
     
     df['Data Marking'] = df['Data Marking'].apply(lambda x: x.replace(' only', ''))
