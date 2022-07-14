@@ -22,7 +22,9 @@ def transform(files, **kwargs):
             }
     
     # file for region and age&sex
-    published_file = [file for file in files if 'publication' in file.lower()][0]
+    published_file = [file for file in files if 'lahb' not in file.lower()]
+    assert len(published_file) == 1, f"found {len(published_file)} files for 'published_file', should be 1"
+    published_file = published_file[0]
     tabs = loadxlstabs(published_file)
     
     # region data
@@ -35,10 +37,7 @@ def transform(files, **kwargs):
 
     # file for health board and local authority
     year_of_data = '2022' # changes with each edition
-    lahb_file = [file for file in files if 'lahb' in file] 
-    if len(lahb_file) == 0:
-        lahb_file = [file for file in files if 'la_hb' in file.lower()][0]
-    else: lahb_file = lahb_file[0]
+    lahb_file = [file for file in files if 'lahb' in file.lower()][0]
         
     # health board and local authority data
     reg_data = pd.read_excel(lahb_file, sheet_name='Registrations - All data', skiprows=3)
