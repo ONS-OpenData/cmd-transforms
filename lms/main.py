@@ -1,6 +1,6 @@
 import pandas as pd
 from latest_version import get_latest_version
-​
+
 def transform(files, **kwargs):
     if 'location' in kwargs.keys():
         location = kwargs['location']
@@ -13,7 +13,7 @@ def transform(files, **kwargs):
 
     assert type(files) == list, f"transform takes in a list, not {type(files)}"
     assert len(files) == 2, f"transform takes in 2 source files, not {len(files)} /n {files}"
-    
+
     dataset_id = "labour-market"
     edition = "PWT22"
     output_file = f"{location}v4-{dataset_id}-{edition}.csv"
@@ -85,9 +85,8 @@ def transform(files, **kwargs):
     new_df = pd.concat([previous_v4, df]).drop_duplicates()
 
     new_df.to_csv(output_file, index=False)
-    
-    return {dataset_id: output_file}
 
+    return {dataset_id: output_file}
 
 def SeasonalValues(value):
     if value.startswith('Non'):
