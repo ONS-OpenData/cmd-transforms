@@ -49,13 +49,13 @@ def transform(files, **kwargs):
     df_rates['SeasonalAdjustment'] = df_rates['SeasonalAdjustment'].apply(SeasonalValues)
     df_rates['Sex'] = df_rates['Sex'].apply(SexLabel)
     df_rates['sex'] = df_rates['Sex'].apply(Slugize)
-    df_rates['Data Marking'] = ''
+    df_rates['Data Marking'] = None
     
     df_levels['mmm-mmm-yyyy'] = df_levels['Time'].apply(Slugize)
     df_levels['uk-only'] = 'K02000001'
     df_levels['Geography'] = 'United Kingdom'
-    df_levels['unit-of-measure'] = 'rates'
-    df_levels['UnitOfMeasure'] = 'Rates'
+    df_levels['unit-of-measure'] = 'levels'
+    df_levels['UnitOfMeasure'] = 'Levels'
     df_levels['economic-activity'] = df_levels['EconomicActivity'].apply(Slugize)
     df_levels['age-groups'] = df_levels['AgeGroups']
     df_levels['seasonal-adjustment'] = df_levels['SeasonalAdjustment'].apply(Slugize)
@@ -63,7 +63,7 @@ def transform(files, **kwargs):
     df_levels['SeasonalAdjustment'] = df_levels['SeasonalAdjustment'].apply(SeasonalValues)
     df_levels['Sex'] = df_levels['Sex'].apply(SexLabel)
     df_levels['sex'] = df_levels['Sex'].apply(Slugize)
-    df_levels['Data Marking'] = ''
+    df_levels['Data Marking'] = None
     
     # getting rid of unwanted columns
     columns_to_keep = [
