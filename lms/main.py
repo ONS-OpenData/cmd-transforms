@@ -67,7 +67,7 @@ def transform(files, **kwargs):
     columns_to_keep = [
         'v4_1', 'Data Marking', 'mmm-mmm-yyyy', 'Time', 'uk-only', 'Geography',
         'unit-of-measure', 'UnitOfMeasure', 'economic-activity','EconomicActivity', 
-        'age-groups', 'AgeGroups', 'Sex', 'seasonal-adjustment', 'SeasonalAdjustment'
+        'age-groups', 'AgeGroups', 'sex', 'Sex', 'seasonal-adjustment', 'SeasonalAdjustment'
         ]
     
     df_rates = df_rates[columns_to_keep]
@@ -78,7 +78,7 @@ def transform(files, **kwargs):
     
     # moving data markings to a separate column
     df.loc[df['v4_1'] == '*', 'Data Marking'] = '*'
-    
+
     previous_v4 = get_latest_version(dataset_id, edition)
     previous_v4 = previous_v4.rename(columns={'V4_1':'v4_1'})
 
@@ -102,3 +102,5 @@ def SexLabel(value):
 def Slugize(value):
     new_value = value.replace(' ', '-').lower()
     return new_value
+
+transform(['MM22_UK_LM_status_rates.csv', 'MM22_UK_LM_status_levels.csv'])
