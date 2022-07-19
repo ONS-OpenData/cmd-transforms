@@ -45,6 +45,7 @@ def transform(files, **kwargs):
     df_rates['economic-activity'] = df_rates['EconomicActivity'].apply(Slugize)
     df_rates['age-groups'] = df_rates['AgeGroups']
     df_rates['seasonal-adjustment'] = df_rates['SeasonalAdjustment'].apply(Slugize)
+    df_rates['seasonal-adjustment'] = df_rates['seasonal-adjustment'].apply(SeasonalCodes)
     df_rates['SeasonalAdjustment'] = df_rates['SeasonalAdjustment'].apply(SeasonalValues)
     df_rates['Sex'] = df_rates['Sex'].apply(SexLabel)
     df_rates['sex'] = df_rates['Sex'].apply(Slugize)
@@ -58,6 +59,7 @@ def transform(files, **kwargs):
     df_levels['economic-activity'] = df_levels['EconomicActivity'].apply(Slugize)
     df_levels['age-groups'] = df_levels['AgeGroups']
     df_levels['seasonal-adjustment'] = df_levels['SeasonalAdjustment'].apply(Slugize)
+    df_levels['seasonal-adjustment'] = df_levels['seasonal-adjustment'].apply(SeasonalCodes)
     df_levels['SeasonalAdjustment'] = df_levels['SeasonalAdjustment'].apply(SeasonalValues)
     df_levels['Sex'] = df_levels['Sex'].apply(SexLabel)
     df_levels['sex'] = df_levels['Sex'].apply(Slugize)
@@ -87,6 +89,13 @@ def transform(files, **kwargs):
     new_df.to_csv(output_file, index=False)
 
     return {dataset_id: output_file}
+
+def SeasonalCodes(value):
+    lookup = {
+            'non-seasonal-adjusted':'non-seasonal-adjustment',
+            'seasonal-adjusted':'seasonal-adjustment'
+            }
+    return lookup[value]
 
 def SeasonalValues(value):
     if value.startswith('Non'):
