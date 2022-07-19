@@ -111,5 +111,3 @@ def SexLabel(value):
 def Slugize(value):
     new_value = value.replace(' ', '-').lower()
     return new_value
-
-transform(['MM22_UK_LM_status_rates.csv', 'MM22_UK_LM_status_levels.csv'])
