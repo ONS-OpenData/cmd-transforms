@@ -72,6 +72,8 @@ def transform(files, **kwargs):
 
     print('Reading in previous version')
     previous_df = get_latest_version('trade', 'time-series')
+    previous_df = previous_df[previous_df['Time'].apply(Year_Remover)]
+
     new_df = pd.concat([previous_df, df])
 
     new_df['countries-and-territories'] = new_df['countries-and-territories'].apply(CountryCorrector)
@@ -144,4 +146,4 @@ def CountryCorrector(value):
         return 'NA'
     else:
         return value
-    
+
