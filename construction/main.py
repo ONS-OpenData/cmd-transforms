@@ -196,6 +196,20 @@ def constructionClassificationCodes(value):
             'R&M housing total':'1-1-1',
             'Non housing R&M':'1-1-2',
             'All R&M':'1-1',
+            'All work':'1',
+            'Public new housing':'1-2-1-1',	
+            'Private new housing':'1-2-1-2',	
+            'Total new housing':'1-2-1',
+            'Infrastructure new work':'1-2-3',	
+            'Public other new work':'1-2-2-1-1',
+            'Private industrial new work':'1-2-2-1-2-1',
+            'Private commercial new work':'1-2-2-1-2-2',
+            'All new work':'1-2',
+            'Public housing R&M':'1-1-1-1',
+            'Private housing R&M':'1-1-1-2',
+            'Total housing R&M':'1-1-1',
+            'Non housing R&M':'1-1-2',
+            'All R&M':'1-1',
             'All work':'1'
             }
     return lookup[value]
@@ -219,5 +233,3 @@ def constructionClassificationLabels(value):
             'Repair and Maintenance - All Work':'All work'
             }
     return lookup[value]
-
-transform(['bulletindataset2.xlsx'])
