@@ -35,7 +35,7 @@ def transform(files, **kwargs):
         
         if tab .name in ('Table 3a', 'Table 3b'):
             
-            assert tab.excel_ref('B6').value == 'New housing public', f"Cell 'B6' should contain 'New housing public' not '{tab.excel_ref('B5').value}'"
+            assert tab.excel_ref('B6').value == 'Public new housing', f"Cell 'B6' should contain 'Public new housing' not '{tab.excel_ref('B5').value}'"
             category = tab.excel_ref('B6').expand(RIGHT).is_not_blank().is_not_whitespace()
             
             time = tab.excel_ref('A10').expand(DOWN).is_not_blank().is_not_whitespace()
@@ -43,7 +43,7 @@ def transform(files, **kwargs):
         else:
             
             # quick check on cell B5 
-            assert tab.excel_ref('B5').value == 'New housing public', f"Cell 'B5' should contain 'New housing public' not '{tab.excel_ref('B5').value}'"
+            assert tab.excel_ref('B5').value == 'Public new housing', f"Cell 'B5' should contain 'Public new housing' not '{tab.excel_ref('B5').value}'"
             category = tab.excel_ref('B5').expand(RIGHT).is_not_blank().is_not_whitespace()
             
             time = tab.excel_ref('A7').expand(DOWN).is_not_blank().is_not_whitespace()
