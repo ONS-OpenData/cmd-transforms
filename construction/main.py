@@ -120,7 +120,8 @@ def quarters(value):
             'Jan to Mar':'Q1', 
             'Apr to June':'Q2',
             'Apr to Jun':'Q2',
-            'July to Sept':'Q3', 
+            'July to Sept':'Q3',
+            'Jul to Sep':'Q3', 
             'Oct to Dec':'Q4'
             }
     return lookup[value]
