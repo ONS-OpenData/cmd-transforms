@@ -33,7 +33,7 @@ def transform(files, **kwargs):
 
         tab_name = tab.name
         
-        if tab .name in ('Table 3a', 'Table 3b'):
+        if tab.name in ('Table 3a', 'Table 3b'):
             
             assert tab.excel_ref('B5').value == 'Public new housing', f"Cell 'B5' should contain 'Public new housing' not '{tab.excel_ref('B5').value}'"
             category = tab.excel_ref('B5').expand(RIGHT).is_not_blank().is_not_whitespace()
