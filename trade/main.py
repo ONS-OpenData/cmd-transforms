@@ -69,7 +69,7 @@ def transform(files, **kwargs):
 
     df['v4_0'] = df['v4_0'].apply(NANRemover) #changes any 'nan' to ''
     df['v4_0'] = df['v4_0'].apply(v4Integers) #changes floats to string-integers
-
+    
     print('Reading in previous version')
     previous_df = get_latest_version('trade', 'time-series')
     previous_df = previous_df[previous_df['Time'].apply(Year_Remover)]
