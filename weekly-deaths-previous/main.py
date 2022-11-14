@@ -14,8 +14,8 @@ def transform(files, **kwargs):
     
     # output used for upload
     output = {
-            'weekly-deaths-health-board': '',
-            'weekly-deaths-local-authority': ''
+            'weekly-deaths-health-board-previous': '',
+            'weekly-deaths-local-authority-previous': ''
             }
     
     # file for health board and local authority
@@ -27,8 +27,8 @@ def transform(files, **kwargs):
     occ_data = pd.read_excel(lahb_file, sheet_name='Occurrences - All data', skiprows=3)
 
     output_file_hb, output_file_la = weekly_deaths_by_la_hb(reg_data, occ_data, year_of_data, location=location)
-    output['weekly-deaths-health-board'] = output_file_hb
-    output['weekly-deaths-local-authority'] = output_file_la
+    output['weekly-deaths-health-board-previous'] = output_file_hb
+    output['weekly-deaths-local-authority-previous'] = output_file_la
     
     return output
 
