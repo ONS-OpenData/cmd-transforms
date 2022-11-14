@@ -1,16 +1,21 @@
 import pandas as pd
-import io, requests, json
+import io, requests
 
-def get_latest_version(dataset, edition):
+def get_latest_version(dataset, edition, **kwargs):
     '''
     Pulls the latest v4 from CMD for a given dataset and edition
     '''
     editions_url = f"https://api.beta.ons.gov.uk/v1/datasets/{dataset}/editions/{edition}/versions"
-    items = requests.get(f"{editions_url}?limit=1000").json()['items']
+
+    if 'version_number' in kwargs.keys():
+        latest_version_number = kwargs['version_number']
+
+    else:
+        items = requests.get(f"{editions_url}?limit=1000").json()['items']
+        # get latest version number
+        latest_version_number = items[0]['version']
+        assert latest_version_number == len(items), f"Get_Latest_Version for /{dataset}/editions/{edition} - number of versions ({len(items)}) does not match latest version number ({latest_version_number})"
     
-    # get latest version number
-    latest_version_number = items[0]['version']
-    assert latest_version_number == len(items), f"Get_Latest_Version for /{dataset}/editions/{edition} - number of versions ({len(items)}) does not match latest version number ({latest_version_number})"
     # get latest version URL
     url = f"{editions_url}/{str(latest_version_number)}"
     # get latest version data
