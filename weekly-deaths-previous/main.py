@@ -19,7 +19,8 @@ def transform(files, **kwargs):
             }
     
     # file for health board and local authority
-    year_of_data = '2022' # changes with each edition
+    year_of_data = '2021' # changes with each edition
+    print(f"Using {year_of_data} as the year of data")
     lahb_file = [file for file in files if 'lahb' in file.lower()][0]
         
     # health board and local authority data
