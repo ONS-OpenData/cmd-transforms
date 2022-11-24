@@ -17,7 +17,7 @@ def transform(files, **kwargs):
     dataset_id = "wellbeing-quarterly"
     output_file = f"{location}v4-{dataset_id}.csv"
     
-    conversionsegments, conversionsegments_data_accuracy = [], []
+    conversionsegments = []
     for file in files:
         if 'nonseasonallyadjusted' in file:
             seasonaladjustment = 'nonseasonallyadjusted'
@@ -26,7 +26,6 @@ def transform(files, **kwargs):
         
         tabs = loadxlstabs(file)
         tabs = [tab for tab in tabs if 'UK' in tab.name]
-        #tabs = [tab for tab in tabs if 'quarterly sa' in tab.name.lower()]
         
         '''DataBaking'''
         for tab in tabs:
@@ -42,7 +41,6 @@ def transform(files, **kwargs):
             estimate = tab.excel_ref('B14').expand(RIGHT) - estimate_data_accuracy
             
             obs = time.waffle(estimate)
-            obs_data_accuracy = time.waffle(estimate_data_accuracy)
             
             dimensions = [
                     HDim(time, TIME, DIRECTLY, LEFT),
@@ -52,25 +50,10 @@ def transform(files, **kwargs):
                     HDimConst('seasonaladjustment', seasonaladjustment)
                     ]
             
-            dimensions_data_accuracy = [
-                    HDim(time, TIME, DIRECTLY, LEFT),
-                    HDimConst(GEOG, geog),
-                    HDimConst('measure', measure),
-                    HDim(estimate_data_accuracy, 'estimate', DIRECTLY, ABOVE),
-                    HDimConst('seasonaladjustment', seasonaladjustment)
-                    ]
-            
             conversionsegment = ConversionSegment(tab, dimensions, obs).topandas()
             conversionsegments.append(conversionsegment)
             
-            conversionsegment = ConversionSegment(tab, dimensions_data_accuracy, obs_data_accuracy).topandas()
-            conversionsegments_data_accuracy.append(conversionsegment)
-            
     df = pd.concat(conversionsegments)
-    df_data_accuracy = pd.concat(conversionsegments_data_accuracy)
-    
-    df['Data accuracy'] = df_data_accuracy['DATAMARKER']
-    assert 'DATAMARKER' not in df.columns, "transform currently assumes no data markings - need to include them"
     
     df['OBS'] = df['OBS'].apply(DataFormat)
     
@@ -89,13 +72,13 @@ def transform(files, **kwargs):
     df['seasonal-adjustment'] = df['SeasonalAdjustment'].apply(Slugize)
     
     df = df.rename(columns={
-            'OBS': 'v4_1',
+            'OBS': 'v4_0',
             'GEOG': 'uk-only'
             }
     )
     
     df = df[[
-            'v4_1', 'Data accuracy', 'yyyy-qq', 'Time', 'uk-only', 'Geography',
+            'v4_0', 'yyyy-qq', 'Time', 'uk-only', 'Geography',
             'measure-of-wellbeing', 'MeasureOfWellbeing', 'wellbeing-estimate', 'Estimate',
             'seasonal-adjustment', 'SeasonalAdjustment'
             ]]
