@@ -113,7 +113,7 @@ def EstimateLookup(value):
 
 def MeasureLabels(value):
     if 'life satisfaction' in value.lower():
-        return 'Life Satisfaction'
+        return 'Life satisfaction'
     elif 'worthwhile' in value.lower():
         return 'Worthwhile'
     elif 'happiness' in value.lower():
