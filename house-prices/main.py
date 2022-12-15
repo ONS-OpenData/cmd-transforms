@@ -55,6 +55,8 @@ def transform(files, **kwargs):
             'build-status', 'BuildStatus', 'house-sales-and-prices', 'HouseSalesAndPrices'
             ]]
   
+    df = df[df['Time'].apply(YearRemover)]
+    
     df.to_csv(output_file, index=False)
     SparsityFiller(output_file)
 
