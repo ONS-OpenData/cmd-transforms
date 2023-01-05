@@ -309,6 +309,8 @@ def yearsQuartersMonthsLabels(value):
         year = value[:4]
         month = value[-3:]
         return f"{year} - {month}"
+    else:
+        raise TypeError(f"{value} does not fit required input format")
 
 def sicLabels(value):
     # tidies up labels for retail sic
