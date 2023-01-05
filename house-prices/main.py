@@ -56,7 +56,7 @@ def transform(files, **kwargs):
             ]]
   
     df = df[df['Time'].apply(YearRemover)]
-    
+
     df.to_csv(output_file, index=False)
     SparsityFiller(output_file)
 
