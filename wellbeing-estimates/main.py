@@ -281,8 +281,7 @@ def measureOfWellbeing(value):
     else:
         raise Exception(f"Unexpected measure of wellbeing - {value}")
 
-admin_url = 'https://api.beta.ons.gov.uk/v1/code-lists/administrative-geography/editions/one-off/codes'
-admin_dict = get_codes_from_codelist(admin_url)
+admin_dict = get_codes_from_codelist("administrative-geography")
 
 def admin_labels(value):
     return admin_dict[value]
