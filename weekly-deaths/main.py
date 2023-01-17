@@ -36,7 +36,7 @@ def transform(files, **kwargs):
     output['weekly-deaths-age-sex'] = output_file
     
     # file for health board and local authority
-    year_of_data = '2022' # changes with each edition
+    year_of_data = '2023' # changes with each edition
     lahb_file = [file for file in files if 'lahb' in file.lower()][0]
         
     # health board and local authority data
