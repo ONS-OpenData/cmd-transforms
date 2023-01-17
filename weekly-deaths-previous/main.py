@@ -24,8 +24,10 @@ def transform(files, **kwargs):
     lahb_file = [file for file in files if 'lahb' in file.lower()][0]
         
     # health board and local authority data
-    reg_data = pd.read_excel(lahb_file, sheet_name='Registrations - All data', skiprows=3)
-    occ_data = pd.read_excel(lahb_file, sheet_name='Occurrences - All data', skiprows=3)
+    #reg_data = pd.read_excel(lahb_file, sheet_name='Registrations - All data', skiprows=3)
+    #occ_data = pd.read_excel(lahb_file, sheet_name='Occurrences - All data', skiprows=3)
+    reg_data = pd.read_excel(lahb_file, sheet_name='Table 1', skiprows=5)
+    occ_data = pd.read_excel(lahb_file, sheet_name='Table 2', skiprows=5)
 
     output_file_hb, output_file_la = weekly_deaths_by_la_hb(reg_data, occ_data, year_of_data, location=location)
     output['weekly-deaths-health-board-previous'] = output_file_hb
