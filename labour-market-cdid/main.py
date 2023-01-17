@@ -25,7 +25,7 @@ def transform(files, **kwargs):
     output_file1 = f"{location}v4-{dataset_id1}.csv"
     
     dataset_id2 = "labour-market-monthly"
-    output_file2 = f"{location}v4-{dataset_id2}-monthly.csv"
+    output_file2 = f"{location}v4-{dataset_id2}.csv"
     
     dataset_id3 = "labour-market-quarterly"
     output_file3 = f"{location}v4-{dataset_id3}.csv"
@@ -163,9 +163,13 @@ def transform(files, **kwargs):
     
     df1 = df1.rename(columns={'mmm-mmm-yyyy': 'quarters-months'})
     df2 = df2.rename(columns={'mmm-yy': 'quarters-months'})
+    df2['quarters-months'] = df2['quarters-months'].apply(slugize)
     df3 = df3.rename(columns={'mmm-mmm-yyyy': 'quarters-months'})
     
     df = pd.concat([df1, df2, df3])
+    df.loc[df['v4_1'] == '[x]', 'Data Marking'] = '[x]'
+    df.loc[df['v4_1'] == '[x]', 'v4_1'] = ''
+
     df.to_csv(output_file, index=False)
     SparsityFiller(output_file, '.')
     
