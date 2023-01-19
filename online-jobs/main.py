@@ -28,87 +28,71 @@ def transform(files, **kwargs):
     
     tabs = loadxlstabs(file, [wanted_sheet])
     
-    for tab in tabs:
-        # row number of start point to skip rows for read_excel
-        #start_point = tab.excel_ref('A').filter(contains_string('Date'))
-        start_point = tab.excel_ref('B').filter(contains_string('Date'))
-        start_point_number = start_point.y
-        number_of_indicators = len(start_point.fill(DOWN).is_not_blank().is_not_whitespace())
+    # get row where data starts
+    start_point = tabs[0].excel_ref('A').filter(contains_string('Date'))
+    start_point_number = start_point.y
         
-        # pretty hacky..
-        # if notes at bottom of spreadsheet then rows will be removed
-        end_of_wanted_data = tab.excel_ref('B').filter(contains_string('Imputed'))
-        end_of_wanted_data = end_of_wanted_data.y
-        
-        start_of_unwanted_data = tab.excel_ref('B').filter(contains_string('Note'))
-        start_of_unwanted_data = start_of_unwanted_data.y
-        
-        if start_of_unwanted_data > end_of_wanted_data:
-            # find number of rows that are not needed
-            lines_to_ignore = tab.excel_ref('B').filter(contains_string('Note'))
-            lines_to_ignore = len(lines_to_ignore.expand(DOWN).is_not_blank().is_not_whitespace())
-            # lines to ignore plus the number of spaces between end of data and start of notes
-            lines_to_ignore += start_of_unwanted_data - end_of_wanted_data - 1
-            # number of indicators needs modifying
-            number_of_indicators -= lines_to_ignore - 1
-            
-        else:
-            lines_to_ignore = 0
-        
-    source = pd.read_excel(file, sheet_name=wanted_sheet, skiprows=start_point_number, 
-                           skipfooter=lines_to_ignore, dtype=str)
-    
-    source = source.drop(['Unnamed: 0'], axis=1)
+    source = pd.read_excel(file, sheet_name=wanted_sheet, skiprows=start_point_number, dtype=str)
+    del tabs
     
     # check to make sure data starts at 07/02/18
-    if source.columns[1] != datetime(2018, 2, 7, 0, 0):
+    if source['Date'].iloc[0] != '2018-02-07 00:00:00':
         raise Exception(f'''
-    First column of data starting at "{datetime.strftime(source.columns[1], '%d-%m-%Y')}" rather than "07/02/18"
+    First row of data should be '2018-02-07 00:00:00' not {source['Date'].iloc[0]}
     Week numbers will be out of sync
     ''')
     
     df_list = []
     week_number_start = 6 # data starts 07/02/18 -> equivalent to week 6
-    for col in source.columns:
-        if col == 'Date':
-            continue
-        
+    
+    for row in source.index:
+            
         df_loop = pd.DataFrame()
-        df_loop['v4_1'] = source[col]
-        df_loop['date'] = ConvertDateTime(col)
-        df_loop['week-number'] = week_number_start
-        df_loop['indicator'] = source['Date']
-        df_loop['Data Marking'] = source[col].iloc[number_of_indicators-1]
-        df_list.append(df_loop)
+        df_loop['v4_1'] = source[source.columns[1:-1]].iloc[row]
+        df_loop['Data Marking'] = ''
         
+        df_loop['calendar-years'] = source['Date'].iloc[row][:4] # extracting year
+        df_loop['Time'] = df_loop['calendar-years']
+        
+        df_loop['uk-only'] = 'K02000001'
+        df_loop['Geography'] = 'United Kingdom'
+        
+        df_loop['week-number'] = week_number_start
+        df_loop['Week'] = week_number_start
+        
+        df_loop['adzuna-jobs-category'] = df_loop.index
+        df_loop['adzuna-jobs-category'] = df_loop['adzuna-jobs-category'].apply(Slugize)
+        df_loop['AdzunaJobsCategory'] = df_loop.index
+        
+        df_loop['indicator'] = source['Notes'].iloc[row]
+        df_loop['indicator'] = df_loop['indicator'].apply(GetImputedValues)
+        
+        df_list.append(df_loop)
+            
         week_number_start += 1
         
     df = pd.concat(df_list).reset_index(drop=True)
     
-    df['Data Marking'] = df['Data Marking'].fillna('nan')
-    print(f"List of imputed values are {df['Data Marking'].unique()}")
+    # Adding imputed data markings
+    # abit hacky but works unless different type of imputed value appears
+    assert df['indicator'].unique().size == 3, "a new type of imputed value needs to be wrangled.."
+    df1 = df[df['indicator'] == 'All industries,Education']
+    df = df[df['indicator'] != 'All industries,Education']
+        
+    df.loc[df['indicator'] == imputed_data_marker, 'Data Marking'] = imputed_data_marker
     
-    df['Data Marking'] = df['Data Marking'].apply(lambda x: x.replace(' only', ''))
+    df1.loc[df1['AdzunaJobsCategory'] == 'All industries', 'Data Marking'] = imputed_data_marker
+    df1.loc[df1['AdzunaJobsCategory'] == 'Education', 'Data Marking'] = imputed_data_marker
     
-    df.loc[df['indicator'] == df['Data Marking'], 'Data Marking'] = imputed_data_marker
-    df['Data Marking'] = df['Data Marking'].apply(DataMarker)
-    
-    df = df[df['indicator'] != 'Imputed values']
-    
-    df['calendar-years'] = df['date'].apply(lambda x: x.split('-')[-1])
-    df['time'] = df['calendar-years']
-    
-    df['uk-only'] = 'K02000001'
-    df['geography'] = 'United Kingdom'
-    
-    df['adzuna-jobs-category'] = df['indicator'].apply(Slugize)
+    df = pd.concat([df, df1])
+    df = df.drop(['indicator'], axis=1)
     
     # create new df for each year to correct week number
     df_list= []
     
-    for year in df['time'].unique():
+    for year in df['Time'].unique():
         
-        df_loop = df[df['time'] == year].reset_index(drop=True)
+        df_loop = df[df['Time'] == year].reset_index(drop=True)
         
         if year in ('2018', '2019'):
              df_loop['week-number'] = df_loop['week-number'].apply(WeekNumber)
@@ -121,40 +105,52 @@ def transform(files, **kwargs):
             df_loop['week-number'] = df_loop['week-number'].apply(lambda x: x-1)
             df_loop['week-number'] = df_loop['week-number'].apply(WeekNumber)
             
-        df_loop['week'] = df_loop['week-number'].apply(WeekNumberLabel)
+        df_loop['Week'] = df_loop['week-number'].apply(WeekNumberLabel)
         
         df_list.append(df_loop)
     
-    df = pd.concat(df_list)
-        
-    df = df.rename(columns={
-            'indicator':'AdzunaJobsCategory',
-            'time':'Time',
-            'geography':'Geography',
-            'week':'Week'
-            }
-        )
+    df = pd.concat(df_list)    
     
-    df = df[[
-            'v4_1', 'Data Marking', 'calendar-years', 'Time', 'uk-only', 'Geography',
-            'adzuna-jobs-category', 'AdzunaJobsCategory', 'week-number', 'Week'
-            ]]
+    if '2025' in df['calendar-years'].unique():
+        raise Exception("aborting, 2025 is in data, check if week numbers are skewed")
     
     df.to_csv(output_file, index=False)
     SparsityFiller(output_file, data_marker)
+    
     return {dataset_id: output_file}
 
-def ConvertDateTime(value):
-    return datetime.strftime(value, '%d-%m-%Y')
 
-def DataMarker(value):
-    if value == 'All':
-        return imputed_data_marker
-    elif value == imputed_data_marker:
-        return value
-    else:
+def GetImputedValues(value):
+    if value == 'nan':
         return ''
     
+    elif pd.isnull(value):
+        return ''
+    
+    else:
+        indicator_range = value.split(' ')[-1].strip(']')
+        
+        if ':' in indicator_range:
+            start_value = indicator_range.split(':')[0]
+            end_value = indicator_range.split(':')[-1]
+            
+            if start_value.startswith('B') and end_value.startswith('AE'):
+                return imputed_data_marker
+            
+            else:
+                raise TypeError("A new type of imputed data range that isn't accounted for")
+        
+        elif ',' in indicator_range:
+            indicator_values = indicator_range.split(',')
+            lookup = {'B': 'All industries', 'K': 'Education'} 
+            new_indicator_values = []
+            for item in indicator_values:
+                new_indicator_values.append(lookup[item[0]])
+            return ','.join(new_indicator_values)
+        
+        else:
+            raise TypeError("A new format of imputed data marking in data not accounted for")
+               
 def Slugize(value):
     new_value = value.replace(' / ', '-').replace('&', 'and').replace(' ', '-').lower()
     return new_value
@@ -170,18 +166,9 @@ def WeekNumberLeapYear(value):
     number = (value+2) % 53
     if number == 0:
         number = 53
-    return 'week-' + str(number)
+    return f'week-{str(number)}'
 
 def WeekNumberLabel(value):
     number = int(value.split('-')[-1])
-    return 'Week ' + str(number)
+    return f'Week {str(number)}'
     
-def OutputName(tab_name):
-    # returns the correct output file name from the tab name
-    if 'feb 2020' in tab_name.lower():
-        return 'v4-job-advert-estimates-feb-2020-index-by-category.csv'
-    elif '2019 index' in tab_name.lower():
-        return 'v4-job-advert-estimates-2019-index-by-category.csv'
-    else:
-        raise Exception('{} is not the correct tab of data'.format(tab_name))
-        
