@@ -49,7 +49,7 @@ def transform(files, **kwargs):
     return {dataset_id: output_file}
 
 def sexLabels(value):
-    lookup = {'0':'All', '1':'Male', '2':'Female'}
+    lookup = {'0':'All', '2':'Male', '1':'Female'}
     return lookup[value]
 
 def ageLabels(value):
