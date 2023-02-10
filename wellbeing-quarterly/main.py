@@ -12,7 +12,9 @@ def transform(files, **kwargs):
         location = '' 
 
     assert type(files) == list, f"transform takes in a list, not {type(files)}"
-    assert len(files) == 2, f"transform only takes in 2 source files, not {len(files)} /n {files}"
+    assert len(files) == 3, f"transform only takes in 3 source files, not {len(files)} /n {files}"
+    files_ci = [file for file in files if 'quality' in file][0]
+    files = [file for file in files if 'quality' not in file]
     
     dataset_id = "wellbeing-quarterly"
     output_file = f"{location}v4-{dataset_id}.csv"
@@ -22,7 +24,7 @@ def transform(files, **kwargs):
         if 'nonseasonallyadjusted' in file:
             seasonaladjustment = 'nonseasonallyadjusted'
         else:
-            seasonaladjustment = 'seasonallyadjusted'
+            seasonaladjustment = 'seasonallyadjusted'  
         
         tabs = loadxlstabs(file)
         tabs = [tab for tab in tabs if 'UK' in tab.name]
@@ -53,7 +55,54 @@ def transform(files, **kwargs):
             conversionsegment = ConversionSegment(tab, dimensions, obs).topandas()
             conversionsegments.append(conversionsegment)
             
-    df = pd.concat(conversionsegments)
+    tabs_ci = loadxlstabs(files_ci)
+    tabs_ci = [tab for tab in tabs_ci if 'UK' in tab.name]
+    
+    conversionsegments_lcl, conversionsegments_ucl = [], []
+    for tab in tabs_ci:
+        assert tab.excel_ref('A11').value.lower() == 'time period', f"Cell A11 should be 'Time period' but found - {tab.excel_ref('A11').value}"
+        time = tab.excel_ref('A12').expand(DOWN).is_not_blank().is_not_whitespace()
+        
+        geog = 'K02000001'
+            
+        measure = tab.name
+        
+        estimate_lcl = tab.excel_ref('B11').expand(RIGHT).filter(contains_string('LCL'))
+        estimate_ucl = tab.excel_ref('B11').expand(RIGHT).filter(contains_string('UCL'))
+        
+        obs_lcl = time.waffle(estimate_lcl)
+        obs_ucl = time.waffle(estimate_ucl)
+        
+        dimensions_lcl = [
+                HDim(time, TIME, DIRECTLY, LEFT),
+                HDimConst(GEOG, geog),
+                HDimConst('measure', measure),
+                HDim(estimate_lcl, 'estimate', DIRECTLY, ABOVE),
+                HDimConst('seasonaladjustment', '')
+                ]
+        
+        dimensions_ucl = [
+                HDim(time, TIME, DIRECTLY, LEFT),
+                HDimConst(GEOG, geog),
+                HDimConst('measure', measure),
+                HDim(estimate_ucl, 'estimate', DIRECTLY, ABOVE),
+                HDimConst('seasonaladjustment', '')
+                ]
+        
+        conversionsegment = ConversionSegment(tab, dimensions_lcl, obs_lcl).topandas()
+        conversionsegments_lcl.append(conversionsegment)
+        conversionsegment = ConversionSegment(tab, dimensions_ucl, obs_ucl).topandas()
+        conversionsegments_ucl.append(conversionsegment)
+            
+    df = pd.concat(conversionsegments).reset_index(drop=True)
+    df_lcl = pd.concat(conversionsegments_lcl).reset_index(drop=True)
+    df_ucl = pd.concat(conversionsegments_ucl).reset_index(drop=True)
+    
+    df_lcl = pd.concat([df_lcl, df_lcl]).reset_index(drop=True)
+    df_ucl = pd.concat([df_ucl, df_ucl]).reset_index(drop=True)
+    
+    df['LCL'] = df_lcl['OBS']
+    df['UCL'] = df_ucl['OBS']
     
     df['OBS'] = df['OBS'].apply(DataFormat)
     
@@ -72,13 +121,13 @@ def transform(files, **kwargs):
     df['seasonal-adjustment'] = df['SeasonalAdjustment'].apply(Slugize)
     
     df = df.rename(columns={
-            'OBS': 'v4_0',
+            'OBS': 'v4_2',
             'GEOG': 'uk-only'
             }
     )
     
     df = df[[
-            'v4_0', 'yyyy-qq', 'Time', 'uk-only', 'Geography',
+            'v4_2', 'LCL', 'UCL', 'yyyy-qq', 'Time', 'uk-only', 'Geography',
             'measure-of-wellbeing', 'MeasureOfWellbeing', 'wellbeing-estimate', 'Estimate',
             'seasonal-adjustment', 'SeasonalAdjustment'
             ]]
