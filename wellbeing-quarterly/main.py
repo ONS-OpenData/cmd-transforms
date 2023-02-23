@@ -118,7 +118,7 @@ def transform(files, **kwargs):
     df['wellbeing-estimate'] = df['Estimate'].apply(Slugize)
     
     df['SeasonalAdjustment'] = df['seasonaladjustment'].apply(SeasonalAdjustmentLabels)
-    df['seasonal-adjustment'] = df['SeasonalAdjustment'].apply(Slugize)
+    df['seasonal-adjustment'] = df['seasonaladjustment'].apply(SeasonalAdjustmentCodes)
     
     df = df.rename(columns={
             'OBS': 'v4_2',
@@ -180,9 +180,17 @@ def DataFormat(value):
     
 def SeasonalAdjustmentLabels(value):
     if value == 'nonseasonallyadjusted':
-        return 'Non Seasonal Adjustment'
+        return 'Non-seasonally adjusted'
     elif value == 'seasonallyadjusted':
-        return 'Seasonal Adjustment'
+        return 'Seasonally adjusted'
     else:
         raise Exception(f"{value} - does not match seasonal adjustment labels")
+    
+def SeasonalAdjustmentCodes(value):
+    if value == 'nonseasonallyadjusted':
+        return 'non-seasonal-adjustment'
+    elif value == 'seasonallyadjusted':
+        return 'seasonal-adjustment'
+    else:
+        raise Exception(f"{value} - does not match seasonal adjustment codes")
     
