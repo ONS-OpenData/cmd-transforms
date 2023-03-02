@@ -75,16 +75,15 @@ def transform(files, **kwargs):
     
     # Adding imputed data markings
     # abit hacky but works unless different type of imputed value appears
-    assert df['indicator'].unique().size == 3, "a new type of imputed value needs to be wrangled.."
-    df1 = df[df['indicator'] == 'All industries,Education']
-    df = df[df['indicator'] != 'All industries,Education']
-        
-    df.loc[df['indicator'] == imputed_data_marker, 'Data Marking'] = imputed_data_marker
     
-    df1.loc[df1['AdzunaJobsCategory'] == 'All industries', 'Data Marking'] = imputed_data_marker
-    df1.loc[df1['AdzunaJobsCategory'] == 'Education', 'Data Marking'] = imputed_data_marker
+    df1 = df[(df['indicator'] != '') & (df['indicator'] != 'x')]
+    df = df[(df['indicator'] == '') | (df['indicator'] == 'x')]
+    for indicator in df1['indicator'].unique():
+        df1.loc[(df1['AdzunaJobsCategory'] == indicator) & (df1['indicator'] == indicator), 'indicator'] = imputed_data_marker
     
     df = pd.concat([df, df1])
+    df.loc[df['indicator'] == imputed_data_marker, 'Data Marking'] = imputed_data_marker
+    
     df = df.drop(['indicator'], axis=1)
     
     # create new df for each year to correct week number
@@ -149,7 +148,9 @@ def GetImputedValues(value):
             return ','.join(new_indicator_values)
         
         else:
-            raise TypeError("A new format of imputed data marking in data not accounted for")
+            indicator_letter = ''.join([x for x in indicator_range if x.isalpha()])
+            lookup = {'B': 'All industries', 'K': 'Education', 'AD': 'Unknown'}
+            return lookup[indicator_letter]
                
 def Slugize(value):
     new_value = value.replace(' / ', '-').replace('&', 'and').replace(' ', '-').lower()
