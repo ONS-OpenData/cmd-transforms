@@ -32,15 +32,16 @@ def transform(files, **kwargs):
         '''DataBaking'''
         for tab in tabs:
             
-            assert tab.excel_ref('A14').value.lower() == 'time period', f"Cell A14 should be 'Time period' but found - {tab.excel_ref('A14').value}"
-            time = tab.excel_ref('A15').expand(DOWN).is_not_blank().is_not_whitespace()
+            start_point = str(tab.excel_ref('A').filter(contains_string('Time period')).y + 1)
+            assert tab.excel_ref(f'A{start_point}').value.lower() == 'time period', f"Cell A{start_point} should be 'Time period' but found - {tab.excel_ref(f'A{start_point}').value}"
+            time = tab.excel_ref(f'A{int(start_point)+1}').expand(DOWN).is_not_blank().is_not_whitespace()
             
             geog = 'K02000001'
             
             measure = tab.name
             
-            estimate_data_accuracy = tab.excel_ref('B14').expand(RIGHT).filter(contains_string('data accuracy'))
-            estimate = tab.excel_ref('B14').expand(RIGHT) - estimate_data_accuracy
+            estimate_data_accuracy = tab.excel_ref(f'B{start_point}').expand(RIGHT).filter(contains_string('data accuracy'))
+            estimate = tab.excel_ref(f'B{start_point}').expand(RIGHT) - estimate_data_accuracy
             
             obs = time.waffle(estimate)
             
