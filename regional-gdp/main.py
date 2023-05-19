@@ -13,7 +13,7 @@ def transform(files, **kwargs):
         location = '' 
 
     assert type(files) == list, f"transform takes in a list, not {type(files)}"
-    assert len(files) == 1, f"transform takes in 1 source file1, not {len(files)} /n {files}"
+    assert len(files) == 1, f"transform takes in 1 source file, not {len(files)} /n {files}"
     file = files[0]
     
     dataset_id_quarterly = "regional-gdp-by-quarter"
