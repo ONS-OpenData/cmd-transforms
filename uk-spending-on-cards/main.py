@@ -26,19 +26,16 @@ def transform(files, **kwargs):
 
     ''' DataBaking '''
     conversionsegments = []
-    for tab in tabs:
-        junk = tab.excel_ref('A').filter(contains_string('Note')).expand(RIGHT).expand(DOWN)
+    for tab in tabs:        
+        category = tab.excel_ref('A').filter(contains_string('Date')).fill(RIGHT).is_not_blank()
         
-        category = tab.excel_ref('A').filter(contains_string('Category')).fill(DOWN).is_not_blank()
-        category -= junk
-        
-        date_time = tab.excel_ref('A').filter(contains_string('Category')).fill(RIGHT).is_not_blank()
+        date_time = tab.excel_ref('A').filter(contains_string('Date')).fill(DOWN).is_not_blank()
         
         obs = date_time.waffle(category)
         
         dimensions = [
-                HDim(category, 'category', DIRECTLY, LEFT),
-                HDim(date_time, 'datetime', DIRECTLY, ABOVE)
+                HDim(category, 'category', DIRECTLY, ABOVE),
+                HDim(date_time, 'datetime', DIRECTLY, LEFT)
                 ]
         
         for cell in dimensions[1].hbagset:
@@ -86,4 +83,5 @@ def datetime_to_dd_mm(value):
     as_datetime = datetime.datetime.strptime(value, '%Y-%m-%d %H:%M:%S') 
     daymonth = datetime.datetime.strftime(as_datetime, '%d-%m')
     return daymonth
+
 
