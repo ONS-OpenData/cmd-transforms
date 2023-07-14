@@ -20,8 +20,20 @@ def get_latest_version(dataset, edition, **kwargs):
     url = f"{editions_url}/{str(latest_version_number)}"
     # get latest version data
     latest_version = requests.get(url).json()
+    # check download option exists
+    check_download_available()
     # decode data frame
     file_location = requests.get(latest_version['downloads']['csv']['href'])
     file_object = io.StringIO(file_location.content.decode('utf-8'))
     df = pd.read_csv(file_object, dtype=str)
     return df
+
+def check_download_available(latest_version_url):
+    # checks if the csv download is available for the latest version 
+    # mainly used for trade
+    page_dict = requests.get(latest_version_url).json()
+    
+    assert 'downloads' in page_dict.keys(), f"No download option available for {latest_version_url}"
+    assert 'csv' in page_dict['downloads'].keys(), f"No csv download available for {latest_version_url}"
+    print(f"Download options available for {latest_version_url}")
+    return
