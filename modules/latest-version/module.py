@@ -21,7 +21,7 @@ def get_latest_version(dataset, edition, **kwargs):
     # get latest version data
     latest_version = requests.get(url).json()
     # check download option exists
-    check_download_available()
+    check_download_available(url)
     # decode data frame
     file_location = requests.get(latest_version['downloads']['csv']['href'])
     file_object = io.StringIO(file_location.content.decode('utf-8'))
