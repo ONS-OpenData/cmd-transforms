@@ -120,6 +120,9 @@ def transform(files, **kwargs):
     
     df['SeasonalAdjustment'] = df['seasonaladjustment'].apply(SeasonalAdjustmentLabels)
     df['seasonal-adjustment'] = df['seasonaladjustment'].apply(SeasonalAdjustmentCodes)
+
+    df.loc[df['seasonal-adjustment'] == 'seasonal-adjustment', 'LCL'] = ''
+    df.loc[df['seasonal-adjustment'] == 'seasonal-adjustment', 'UCL'] = ''
     
     df = df.rename(columns={
             'OBS': 'v4_2',
