@@ -1,6 +1,6 @@
 import pandas as pd
 from databaker.framework import *
-from ashe_functions import CodeList_Codes_and_Labels, Code_To_Labels
+from ashe_functions import *
 import math
 
 def transform(files, **kwargs):    
@@ -212,20 +212,20 @@ def transform(files, **kwargs):
     df['geography_codelist'] = df['GEOG'].apply(lambda x:x.strip('c').strip('b').strip('a'))
     df['geography'] = df['geography_codelist'].apply(GeogLabels)
     
-    df['sheet_name'] = df['sheet_name'].apply(af.sheetNameLookup)
+    df['sheet_name'] = df['sheet_name'].apply(sheetNameLookup)
     df['sheet_name_codelist'] = df['sheet_name'].apply(sheetNameCodeLookup)
     
     df['table_number'] = df['table_number'].apply(tableNumberLookup)
     df['table_number_codelist'] = df['table_number'].apply(lambda x:x.lower())
     
-    df['variable'] = df['variable'].apply(af.variableType)
-    df['variable_codelist'] = df['variable'].apply(af.variableTypeCodeLookup)
+    df['variable'] = df['variable'].apply(variableType)
+    df['variable_codelist'] = df['variable'].apply(variableTypeCodeLookup)
     
-    df['Sex'] = df['tab_name'].apply(af.sexLabels)
-    df['sex'] = df['Sex'].apply(af.Lower)
+    df['Sex'] = df['tab_name'].apply(sexLabels)
+    df['sex'] = df['Sex'].apply(Lower)
     
-    df['WorkingPattern'] = df['tab_name'].apply(af.workingPatternLabels)
-    df['working-pattern'] = df['WorkingPattern'].apply(af.Lower)
+    df['WorkingPattern'] = df['tab_name'].apply(workingPatternLabels)
+    df['working-pattern'] = df['WorkingPattern'].apply(Lower)
     
     # reordering columns
     df = df[[
