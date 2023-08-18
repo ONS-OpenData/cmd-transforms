@@ -2,8 +2,7 @@ import pandas as pd
 from databaker.framework import *
 from ashe_functions import *
 
-def transform(files, **kwargs):
-        
+def transform(files, **kwargs): 
     dataset_id = "ashe-tables-26"
     output_file = f"{dataset_id}.csv"
     year_of_data = kwargs['year_of_data']
@@ -93,7 +92,7 @@ def transform(files, **kwargs):
     
     conversionsegments = []
     
-    for tab in tabsCV:
+    for tab in tabs_cv:
         # columns are named badly
         # quick check to make sure they haven't changed
         if tab.excel_ref('C5').value != '(thousand)':
