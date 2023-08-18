@@ -78,7 +78,7 @@ def transform(files, **kwargs):
         obs = variable.waffle(description)
         
         dimensions = [
-                HDimConst(TIME, timeOfData),
+                HDimConst(TIME, year_of_data),
                 HDimConst(GEOG, geogCodes),
                 HDim(description, 'care', DIRECTLY, LEFT),
                 HDim(variable, 'Variable', DIRECTLY, ABOVE),
@@ -114,7 +114,7 @@ def transform(files, **kwargs):
         obs = variable.waffle(description)
         
         dimensions = [
-                HDimConst(TIME, timeOfData),
+                HDimConst(TIME, year_of_data),
                 HDimConst(GEOG, geogCodes),
                 HDim(description, 'care', DIRECTLY, LEFT),
                 HDim(variable, 'Variable', DIRECTLY, ABOVE),
