@@ -5,7 +5,7 @@ import math
 
 
 def transform(files, **kwargs):    
-    dataset_id = "ashe-tables-27-and-28"
+    dataset_id = "ashe-tables-9-and-10"
     output_file = f"{dataset_id}.csv"
     year_of_data = kwargs['year_of_data']
  
@@ -267,23 +267,23 @@ def transform(files, **kwargs):
     df['Geography_codelist'] = df['GEOG'].apply(pconGeography)
     df.loc[pd.isnull(df['Geography_codelist']), 'Geography_codelist'] = df['Geography'].apply(NullGeogCodes)
     
-    df['sheetName'] = df['sheetName'].apply(af.sheetNameLookup)
+    df['sheetName'] = df['sheetName'].apply(sheetNameLookup)
     df['sheetName_codelist'] = df['sheetName'].apply(sheetNameCodeLookup)
     df['sheetName_codelist'] = df['sheetName_codelist'].apply(lambda x:x.replace(' ', '-'))
     
     df['tableNumber'] = df['tableNumber'].apply(tableNumberLookup)
-    df['tableNumber_codelist'] = df['tableNumber'].apply(af.Lower)
+    df['tableNumber_codelist'] = df['tableNumber'].apply(Lower)
     
-    df['Variable'] = df['Variable'].apply(af.variableType)
-    df['Variable_codelist'] = df['Variable'].apply(af.variableTypeCodeLookup)
+    df['Variable'] = df['Variable'].apply(variableType)
+    df['Variable_codelist'] = df['Variable'].apply(variableTypeCodeLookup)
     
     df['tabName_codelist'] = df['tabName'].apply(lambda x:x.lower().replace('-', '_'))
     
-    df['Sex'] = df['tabName'].apply(af.sexLabels)
-    df['sex'] = df['Sex'].apply(af.Lower)
+    df['Sex'] = df['tabName'].apply(sexLabels)
+    df['sex'] = df['Sex'].apply(Lower)
     
-    df['WorkingPattern'] = df['tabName'].apply(af.workingPatternLabels)
-    df['working-pattern'] =df['WorkingPattern'].apply(af.Lower)
+    df['WorkingPattern'] = df['tabName'].apply(workingPatternLabels)
+    df['working-pattern'] =df['WorkingPattern'].apply(Lower)
     
     #reordering columns
     df = df[['OBS', 'DATAMARKER', 'CV', 'time_codelist', 'TIME',
