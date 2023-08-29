@@ -81,9 +81,9 @@ def transform(files, **kwargs):
                 }
         return lookup.get(value, value)
     
-    sheet_name_dict = CodeList_Codes_and_Labels('hours-and-earnings')
+    sheetNameDict = CodeList_Codes_and_Labels('hours-and-earnings')
 
-     def sheetNameLookup(value):
+    def sheetNameLookup(value):
         '''returns ashe-earnings labels from sheetName'''
         value = '.' + value.split('.')[1]
         lookup = {
@@ -295,17 +295,17 @@ def transform(files, **kwargs):
     
     # v4 column for dfCV is the CV intervals for data
     df = df.reset_index(drop=True)
-    df_cv = df_cv.reset_index(drop=True)
-    df_cv.loc[df_cv['OBS'] == '', 'OBS'] = df_cv['DATAMARKER']
-    df['CV'] = df_cv['OBS']
+    dfCV = dfCV.reset_index(drop=True)
+    dfCV.loc[dfCV['OBS'] == '', 'OBS'] = dfCV['DATAMARKER']
+    df['CV'] = dfCV['OBS']
 
     #renaming columns
     colsRename = {
-            'OBS':'V4_2',
+            'OBS':'v4_2',
             'DATAMARKER':'Data Marking',
             'TIME':'Time',
             'Time_codelist':'calendar-years',
-            'Geography_codelist':'administrative-geography',
+            'GEOG':'administrative-geography',
             'Variable':'AveragesAndPercentiles',
             'Variable_codelist':'averages-and-percentiles',
             'sheetName':'HoursAndEarnings',
@@ -314,9 +314,8 @@ def transform(files, **kwargs):
             'tableNumber_codelist':'workplace-or-residence'
             }
     
-    df['Time_codelist'] = df['Time']
+    df['Time_codelist'] = df['TIME']
     df['Geography'] = df['GeogNames']
-    df = df.drop(['GeogNames', 'GeogNames_codelist'], axis = 1)
     
     #sorting geography
     df.loc[df['Geography'] == 'Not Classified', 'GEOG'] = 'not-classified'
@@ -345,8 +344,8 @@ def transform(files, **kwargs):
     df['working-pattern'] = df['WorkingPattern'].apply(workingPatternCodes)
     
     #reordering columns
-    df = df[['OBS', 'DATAMARKER', 'CV', 'Time_codelist', 'Time',
-             'Geography_codelist', 'Geography', 'Variable_codelist', 'Variable',
+    df = df[['OBS', 'DATAMARKER', 'CV', 'Time_codelist', 'TIME',
+             'GEOG', 'Geography', 'Variable_codelist', 'Variable',
              'sex', 'Sex', 'working-pattern', 'WorkingPattern', 
              'sheetName_codelist', 'sheetName', 'tableNumber_codelist', 'tableNumber']]
     
@@ -357,7 +356,7 @@ def transform(files, **kwargs):
     df.loc[df['CV'] == '', 'CV'] = 'x'
     
     #Correcting issue with databaker
-    dfError = df[df['V4_2'] == '']
+    dfError = df[df['v4_2'] == '']
     #dfError = df[pd.isnull(df['V4_2'] )]
     dfError = dfError[pd.isnull(dfError['Data Marking'])]
     errorList = list(dfError.index)
