@@ -23,13 +23,13 @@ def transform(files, **kwargs):
     # loading in all tabs for data
     all_tabs = []
     for file in files:
-        read_file = loadxlstabs(file, ['All'])
+        read_file = loadxlstabs(file)
         all_tabs.append(read_file)
     
     # loading in all tabs for CV interval data
     all_tabs_cv = []
     for file in files_cv:
-        read_file = loadxlstabs(file, ['All'])
+        read_file = loadxlstabs(file)
         all_tabs_cv.append(read_file)
         
     # above process creates a list of lists
@@ -42,8 +42,8 @@ def transform(files, **kwargs):
     tabs_cv = [tab for tab in flat_list_cv if tab.name != 'CV notes']
     
     # quick check to make sure number of files or number of tabs hasn't changed
-    #if len(tabs) != len(tabs_cv) or len(tabs) != len(files) * 9:
-    #    raise Exception('Number of files or number of tabs has changed')
+    if len(tabs) != len(tabs_cv) or len(tabs) != len(files) * 9:
+        raise Exception('Number of files or number of tabs has changed')
     
     '''will be iterating the databaking process'''
     #max number of rows out of all the sheets
