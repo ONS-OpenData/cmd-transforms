@@ -41,8 +41,8 @@ def transform(files, **kwargs):
     tabs_cv = [tab for tab in flat_list_cv if tab.name != 'CV notes']
     
     # quick check to make sure number of files or number of tabs hasn't changed
-    #if len(tabs) != len(tabs_cv) or len(tabs) != len(files) * 9:
-    #    raise Exception('Number of files or number of tabs has changed')
+    if len(tabs) != len(tabs_cv) or len(tabs) != len(files) * 9:
+        raise Exception('Number of files or number of tabs has changed')
                     
     # pull in codelist for sheetName (ashe-earnings)
     sheetNameDict = CodeList_Codes_and_Labels('hours-and-earnings')
