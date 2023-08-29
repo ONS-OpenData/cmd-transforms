@@ -23,7 +23,7 @@ def CodeList_Codes_and_Labels(codelist_id):
         
     # otherwise iterations are needed, API only has limit size of 1000
     else:
-        number_of_iterations = round(total_count / 1000) + 1
+        number_of_iterations = round(total_count / 1000)
         offset = 0
         for i in range(number_of_iterations):
             new_url = url + '?limit=1000&offset={}'.format(offset)
@@ -31,6 +31,8 @@ def CodeList_Codes_and_Labels(codelist_id):
             for item in whole_codelist_dict['items']:
                 codes_label_dict.update({item['code']:item['label']})
             offset += 1000
+
+    assert len(codes_label_dict) == total_count, "Length of codes_label_dict not matching total count"
             
     return codes_label_dict   
 
