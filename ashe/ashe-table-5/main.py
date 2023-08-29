@@ -55,6 +55,7 @@ def transform(files, **kwargs):
     regions = ['NORTH EAST','NORTH WEST','EAST MIDLANDS','WEST MIDLANDS','YORKSHIRE AND THE HUMBER','EAST','LONDON','SOUTH EAST','SOUTH WEST','ENGLAND','WALES','SCOTLAND','NORTHERN IRELAND','ENGLAND AND WALES','GREAT BRITAIN','UNITED KINGDOM']
     region_codes = ['K02000001','K03000001','K04000001','E92000001','E12000001','E12000002','E12000003','E12000004','E12000005','E12000006','E12000007','E12000008','E12000009','W92000004','S92000003','N92000002']
     
+    conversionsegments = []
     for i in range(0,numberOfIterations):    
     
         Min = str(6+batchNumber*i)
@@ -251,9 +252,7 @@ def transform(files, **kwargs):
     df['CV'] = dfCV['OBS']
 
     #more tidying
-    df = df.drop('Geography',1)
-    df['industry_codelist'] = df['Geography_codelist'].copy(deep = True)  
-    df = df.drop('Geography_codelist',1)
+    df['industry_codelist'] = df['GEOG'].copy(deep = True)  
     
     df2 = df.copy(deep = True)
     df = df2.copy(deep = True)
@@ -296,7 +295,7 @@ def transform(files, **kwargs):
     
     #renaming columns
     colsRename = {
-            'OBS':'V4_2',
+            'OBS':'v4_2',
             'DATAMARKER':'Data Marking',
             'TIME':'Time',
             'Time_codelist':'calendar-years',
@@ -419,7 +418,7 @@ def transform(files, **kwargs):
     
     #find cases where both data marking and obs are NA
     
-    df.loc[df['V4_2'] == '','Data Marking'] = 'x'
+    df.loc[df['v4_2'] == '','Data Marking'] = 'x'
     
     df.to_csv(output_file, index=False)
     return {dataset_id: output_file}
