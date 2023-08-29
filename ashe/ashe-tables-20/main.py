@@ -200,7 +200,7 @@ def transform(files, **kwargs):
     
     #renaming columns
     renameCols = {
-            'OBS':'V4_2',
+            'OBS':'v4_2',
             'DATAMARKER':'Data Marking',
             'TIME':'Time',
             'Time_codelist':'calendar-years',
@@ -223,8 +223,6 @@ def transform(files, **kwargs):
     
     df['socCodes_codelist'] = df['socCodes'].apply(SocCodes)
     df['socCodes'] = df['socCodes_codelist'].apply(SocLabels)
-    
-    df = df.drop(['ageSocGroups_codelist', 'ageSocGroups'], axis = 1)
     
     df['sheetName'] = df['sheetName'].apply(sheetNameLookup)
     df['sheetName_codelist'] = df['sheetName'].apply(sheetNameCodeLookup)
@@ -254,7 +252,7 @@ def transform(files, **kwargs):
     df.loc[df['CV'] == '', 'CV'] = 'x'
     
     #Correcting issue with databaker
-    dfError = df[df['V4_2'] == '']
+    dfError = df[df['v4_2'] == '']
     #dfError = df[pd.isnull(df['V4_2'] )]
     dfError = dfError[pd.isnull(dfError['Data Marking'])]
     errorList = list(dfError.index)
