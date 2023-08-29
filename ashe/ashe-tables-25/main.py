@@ -208,7 +208,7 @@ def transform(files, **kwargs):
     
     #renaming columns
     colsRename = {
-            'OBS':'V4_2',
+            'OBS':'v4_2',
             'DATAMARKER':'Data Marking',
             'TIME':'Time',
             'Time_codelist':'calendar-years',
@@ -241,7 +241,7 @@ def transform(files, **kwargs):
     
     df['sectorVariable'] = df['sectorVariable'].apply(sectorLabels)
     df['sectorVariable_codelist'] = df['sectorVariable'].apply(sectorCodes)
-    
+
     #reordering columns
     df = df[['OBS', 'DATAMARKER', 'CV', 'Time_codelist', 'TIME',
              'GEOG', 'Geography', 'Variable_codelist', 'Variable',
@@ -255,7 +255,7 @@ def transform(files, **kwargs):
     df.loc[df['CV'] == '', 'CV'] = 'x'
     
     #Correcting issue with databaker
-    dfError = df[df['V4_2'] == '']
+    dfError = df[df['v4_2'] == '']
     #dfError = df[pd.isnull(df['V4_2'] )]
     dfError = dfError[pd.isnull(dfError['Data Marking'])]
     errorList = list(dfError.index)
