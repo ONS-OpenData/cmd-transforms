@@ -202,15 +202,15 @@ def transform(files, **kwargs):
     
     #V4 column for dfCV is the CV intervals for data
     df = df.reset_index(drop=True)
-    df_cv = df_cv.reset_index(drop=True)
-    df_cv.loc[df_cv['OBS'] == '', 'OBS'] = df_cv['DATAMARKER']
-    df['CV'] = df_cv['OBS']
+    dfCV = dfCV.reset_index(drop=True)
+    dfCV.loc[dfCV['OBS'] == '', 'OBS'] = dfCV['DATAMARKER']
+    df['CV'] = dfCV['OBS']
     
     '''Post processing'''
     
     #renaming columns
     colsRename = {
-            'OBS':'V4_2',
+            'OBS':'v4_2',
             'DATAMARKER': 'Data Marking',
             'TIME':'Time',
             'Time_codelist':'calendar-years',
@@ -261,7 +261,7 @@ def transform(files, **kwargs):
     df.loc[df['CV'] == '.', 'CV'] = 'x'
     
     #Correcting issue with databaker
-    dfError = df[df['V4_2'] == '']
+    dfError = df[df['v4_2'] == '']
     #dfError = df[pd.isnull(df['V4_2'] )]
     dfError = dfError[pd.isnull(dfError['Data Marking'])]
     errorList = list(dfError.index)
