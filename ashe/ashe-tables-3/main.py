@@ -208,20 +208,20 @@ def transform(files, **kwargs):
         
     # v4 column for dfCV is the CV intervals for data
     df = df.reset_index(drop=True)
-    df_cv = df_cv.reset_index(drop=True)
-    df_cv.loc[df_cv['OBS'] == '', 'OBS'] = df_cv['DATAMARKER']
-    df['CV'] = df_cv['OBS']
+    dfCV = dfCV.reset_index(drop=True)
+    dfCV.loc[dfCV['OBS'] == '', 'OBS'] = dfCV['DATAMARKER']
+    df['CV'] = dfCV['OBS']
     
     '''Post processing'''
     
     #renaming columns
     renameCols = {
-            'OBS':'V4_2',
+            'OBS':'v4_2',
             'DATAMARKER': 'Data Marking',
             'TIME': 'Time',
             'Time_codelist':'calendar-years',
             'Geography':'Geography',
-            'Geography_codelist':'administrative-geography',
+            'GEOG':'administrative-geography',
             'Variable':'AveragesAndPercentiles',
             'Variable_codelist':'averages-and-percentiles',
             'sheetName':'HoursAndEarnings',
@@ -233,12 +233,10 @@ def transform(files, **kwargs):
     df['Time_codelist'] = df['TIME']
 
     df['Geography'] = df['GeogNames']
-    df = df.drop(['GeogNames', 'GeogNames_codelist'], axis = 1)
     df['GEOG'] = df['GEOG'].apply(lambda x: x.strip())
     
     df['socCodes_codelist'] = df['socCodes']
     df['socCodes'] = df['socNames']
-    df = df.drop(['socNames', 'socNames_codelist'], axis = 1)
     
     df['socCodes_codelist'] = df['socCodes_codelist'].apply(SOCcodes)
     df['socCodes'] = df['socCodes'].apply(SOClabels)
@@ -259,7 +257,7 @@ def transform(files, **kwargs):
     df['working-pattern'] = df['WorkingPattern'].apply(Lower)
     
     df = df[[
-            'OBS', 'DATAMARKER', 'CV', 'Time_codelist', 'Time', 'GEOG',
+            'OBS', 'DATAMARKER', 'CV', 'Time_codelist', 'TIME', 'GEOG',
             'Geography', 'socCodes_codelist', 'socCodes', 'Variable_codelist', 'Variable', 
             'sheetName_codelist', 'sheetName', 'sex', 'Sex', 'working-pattern', 'WorkingPattern'
             ]]
@@ -271,7 +269,7 @@ def transform(files, **kwargs):
     df.loc[df['CV'] == '', 'CV'] = 'x'
     
     #Correcting issue with databaker
-    dfError = df[df['V4_2'] == '']
+    dfError = df[df['v4_2'] == '']
     #dfError = df[pd.isnull(df['V4_2'] )]
     dfError = dfError[pd.isnull(dfError['Data Marking'])]
     errorList = list(dfError.index)
