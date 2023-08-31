@@ -6,7 +6,7 @@ import math
 
 def transform(files, **kwargs):    
     dataset_id = "ashe-tables-3"
-    output_file = f"{dataset_id}.csv"
+    output_file = f"v4-{dataset_id}.csv"
     year_of_data = kwargs['year_of_data']
 
     # ignoring any files that are not ashe files and ignoring gender pay gap file
