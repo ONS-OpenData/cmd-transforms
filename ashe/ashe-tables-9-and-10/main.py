@@ -249,7 +249,7 @@ def transform(files, **kwargs):
             'DATAMARKER':'Data Marking',
             'TIME':'Time',
             'time_codelist':'calendar-years',
-            'GEOG':'parliamentary-constituencies',
+            'Geography_codelist':'parliamentary-constituencies',
             'Variable':'AveragesAndPercentiles',
             'Variable_codelist':'averages-and-percentiles',
             'sheetName':'HoursAndEarnings',
@@ -287,7 +287,7 @@ def transform(files, **kwargs):
     
     #reordering columns
     df = df[['OBS', 'DATAMARKER', 'CV', 'time_codelist', 'TIME',
-             'GEOG', 'Geography', 'Variable_codelist', 'Variable',
+             'Geography_codelist', 'Geography', 'Variable_codelist', 'Variable',
              'sex', 'Sex', 'working-pattern', 'WorkingPattern', 
              'sheetName_codelist', 'sheetName', 'tableNumber_codelist', 'tableNumber']]
     
