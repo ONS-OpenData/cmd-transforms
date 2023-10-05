@@ -149,7 +149,7 @@ def GetImputedValues(value):
         
         else:
             indicator_letter = ''.join([x for x in indicator_range if x.isalpha()])
-            lookup = {'B': 'All industries', 'K': 'Education', 'AD': 'Unknown'}
+            lookup = {'B': 'All industries', 'K': 'Education', 'AD': 'Unknown', 'AC': 'Travel / tourism'}
             return lookup[indicator_letter]
                
 def Slugize(value):
@@ -173,3 +173,5 @@ def WeekNumberLabel(value):
     number = int(value.split('-')[-1])
     return f'Week {str(number)}'
     
+if __name__ == '__main__':
+    transform(['onlinejobadvertestimatesdataset051023.xlsx'])
