@@ -173,5 +173,3 @@ def WeekNumberLabel(value):
     number = int(value.split('-')[-1])
     return f'Week {str(number)}'
     
-if __name__ == '__main__':
-    transform(['onlinejobadvertestimatesdataset051023.xlsx'])
