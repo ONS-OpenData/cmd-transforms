@@ -45,7 +45,7 @@ def sexual_orientation_by_region(source_tabs, **kwargs):
     conversionsegments = []
     for tab in tabs:
         # quick check to make sure data has not moved since last publish
-        assert tab.excel_ref('A12').value == "Sexual Identity", f"Data seems to have moved, cell A12 should be Sexual Identity not {tab.excel_ref('A12').value}"
+        assert tab.excel_ref('A12').value == "Sexual Orientation", f"Data seems to have moved, cell A12 should be Sexual Orientation not {tab.excel_ref('A12').value}"
         
         year = tab.excel_ref('B13').expand(DOWN).is_not_blank().is_not_whitespace()
         
@@ -136,7 +136,7 @@ def sexual_orientation_by_age_and_sex(source_tabs, **kwargs):
     conversionsegments = []
     for tab in tabs:
         # quick check to make sure data has not moved since last publish
-        assert tab.excel_ref('A12').value == "Sexual Identity", f"Data seems to have moved, cell A12 should be Sexual Identity not {tab.excel_ref('A12').value}"
+        assert tab.excel_ref('A12').value == "Sexual Orientation", f"Data seems to have moved, cell A12 should be Sexual Orientation not {tab.excel_ref('A12').value}"
         
         year = tab.excel_ref('C13').expand(DOWN).is_not_blank().is_not_whitespace()
         
