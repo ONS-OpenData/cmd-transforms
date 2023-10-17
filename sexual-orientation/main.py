@@ -115,6 +115,8 @@ def sexual_orientation_by_region(source_tabs, **kwargs):
              'administrative-geography', 'Geography', 'sexual-orientation', 'SexualOrientation',
              'unit-of-measure', 'UnitOfMeasure']]
     
+    df.loc[df['unit-of-measure'] =='percentage', 'v4_3'] = df['v4_3'].apply(percentage_value_tidy)
+    
     df.to_csv(output_file, index=False)
     return output_file
 
@@ -214,6 +216,8 @@ def sexual_orientation_by_age_and_sex(source_tabs, **kwargs):
              'age-groups', 'AgeGroups', 'sex', 'Sex', 'sexual-orientation', 'SexualOrientation',
              'unit-of-measure', 'UnitOfMeasure']]
     
+    df.loc[df['unit-of-measure'] =='percentage', 'v4_2'] = df['v4_2'].apply(percentage_value_tidy)
+    
     df.to_csv(output_file, index=False)
     return output_file
 
@@ -303,3 +307,15 @@ def ageGroupsTidy(value):
         new_value = value
     new_value = new_value.replace('\n', ' ')
     return new_value
+
+def percentage_value_tidy(value):
+    if pd.isnull(value):
+        return value
+    elif value == '':
+        return value
+    
+    if not '.' in value:
+        new_value = f"{value}.0"
+        return new_value
+    else:
+        return value
