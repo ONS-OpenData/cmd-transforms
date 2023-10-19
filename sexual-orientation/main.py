@@ -92,6 +92,7 @@ def sexual_orientation_by_region(source_tabs, **kwargs):
     
     df['UnitOfMeasure'] = df['measure'].apply(unitOfMeasureLabels)
     df['unit-of-measure'] = df['UnitOfMeasure'].apply(slugize)
+    df['UnitOfMeasure'] = df['UnitOfMeasure'].apply(lambda x: x.replace('Number', 'Number of people (thousands)'))
     
     df['DATAMARKER'] = df['DATAMARKER'].apply(dataMarkings)
     
@@ -193,6 +194,7 @@ def sexual_orientation_by_age_and_sex(source_tabs, **kwargs):
     
     df['UnitOfMeasure'] = df['measure'].apply(unitOfMeasureLabels)
     df['unit-of-measure'] = df['UnitOfMeasure'].apply(slugize)
+    df['UnitOfMeasure'] = df['UnitOfMeasure'].apply(lambda x: x.replace('Number', 'Number of people (thousands)'))
     
     if 'DATAMARKER' in df.columns:
         raise Exception('Data marker column has not been accounted for..')
