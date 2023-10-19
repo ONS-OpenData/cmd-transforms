@@ -149,7 +149,10 @@ def GetImputedValues(value):
         
         else:
             indicator_letter = ''.join([x for x in indicator_range if x.isalpha()])
-            lookup = {'B': 'All industries', 'K': 'Education', 'AD': 'Unknown', 'AC': 'Travel / tourism'}
+            lookup = {'B': 'All industries', 'K': 'Education', 'AD': 'Unknown', 
+                      'AC': 'Travel / tourism', 'C': 'Accounting / Finance'}
+            if indicator_letter not in lookup:
+                raise NotImplementedError(f"{indicator_letter} not impletemented for GetImputedValues()")
             return lookup[indicator_letter]
                
 def Slugize(value):
