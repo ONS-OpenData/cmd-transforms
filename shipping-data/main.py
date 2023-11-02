@@ -31,7 +31,7 @@ def transform(files, **kwargs):
     for tab in tabs:
         junk = tab.excel_ref('A').filter(contains_string('x:')).expand(RIGHT)#.expand(DOWN)
         
-        week_number = tab.excel_ref('A8').expand(DOWN).is_not_blank().is_not_whitespace()
+        week_number = tab.excel_ref('A').filter(contains_string('Week')).fill(DOWN).is_not_blank().is_not_whitespace()
         week_number -= junk
         
         week_commencing = week_number.shift(1, 0)
@@ -60,8 +60,8 @@ def transform(files, **kwargs):
     
     df = pd.concat(conversionsegments).reset_index(drop=True)
 
-    df['TIME'] = df['week_commencing'].apply(lambda x: str(x).split('-')[0])
-    df['month'] = df['week_commencing'].apply(lambda x: str(x).split('-')[1])
+    df['TIME'] = df['week_commencing'].apply(lambda x: str(x).split('/')[-1])
+    df['month'] = df['week_commencing'].apply(lambda x: str(x).split('/')[1])
     # if week 1 starts in december then the year will be incorrect -> add 1 to it
     df.loc[(df['week_number'] == '1.0') & (df['month'] == '12'), 'TIME'] = df['TIME'].apply(AddToYear)
     # if week 52/53 starts in january then the year will be incorrect -> take away 1 from it
