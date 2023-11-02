@@ -1,6 +1,6 @@
 from databaker.framework import *
 import pandas as pd
-#from sparsity_functions import SparsityFiller
+from sparsity_functions import SparsityFiller
 import datetime
 
 
@@ -133,5 +133,3 @@ def v4Integers(value):
         newValue = newValue[:-2]
     return newValue
 
-
-transform(['trafficcameraactivitydataset021123.xlsx'])
