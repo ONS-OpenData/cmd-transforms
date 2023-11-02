@@ -1,6 +1,6 @@
 from databaker.framework import *
 import pandas as pd
-from sparsity_functions import SparsityFiller
+#from sparsity_functions import SparsityFiller
 import datetime
 
 
@@ -23,6 +23,7 @@ def transform(files, **kwargs):
 
     tabs = loadxlstabs(file)
     tabs = [tab for tab in tabs if 'note' not in tab.name.lower()] # remove note tab
+    tabs = [tab for tab in tabs if 'content' not in tab.name.lower()]
 
     '''DataBaking'''
     conversionsegments = []
@@ -119,7 +120,9 @@ def SeasonalAdjustment(value):
         return value
     lookup = {
             'Non seasonally adjusted':'Non Seasonal Adjustment',
-            'Seasonally adjusted':'Seasonal Adjustment'
+            'Seasonally adjusted':'Seasonal Adjustment',
+            'Non-adjusted':'Non Seasonal Adjustment',
+            'Weekday adjusted':'Seasonal Adjustment'
             }
     return lookup[value]
 
@@ -129,3 +132,6 @@ def v4Integers(value):
     if newValue.endswith('.0'):
         newValue = newValue[:-2]
     return newValue
+
+
+transform(['trafficcameraactivitydataset021123.xlsx'])
