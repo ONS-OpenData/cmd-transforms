@@ -18,7 +18,8 @@ def transform(files, **kwargs):
     dataset_id = "mid-year-pop-est"
     output_file = f"{location}v4-{dataset_id}.csv"
 
-    source = pd.read_excel(file, sheet_name='2021_geog', dtype=str)
+    sheet_to_transform = '2021_geog'
+    source = pd.read_excel(file, sheet_name=sheet_to_transform, dtype=str)
     
     df_list = []
     for col in source.columns:
@@ -41,15 +42,17 @@ def transform(files, **kwargs):
         df_list.append(df_loop)
         
     df = pd.concat(df_list)
-    df = df[['v4_0', 'calendar-years', 'Time', 'administrative-geography',
-           'Geography', 'sex', 'Sex', 'single-year-of-age', 'Age']]
+    df = df[['v4_0', 'calendar-years', 'Time', 'administrative-geography', 'Geography', 
+             'sex', 'Sex', 'single-year-of-age', 'Age']]
     
     df.to_csv(output_file, index=False)
-    
     return {dataset_id: output_file}
 
 def sexLabels(value):
-    lookup = {'0':'All', '2':'Male', '1':'Female'}
+    lookup = {
+        '0':'All', '2':'Male', '1':'Female',
+        'a':'All', 'm':'Male', 'f':'Female',
+        }
     return lookup[value]
 
 def ageLabels(value):
