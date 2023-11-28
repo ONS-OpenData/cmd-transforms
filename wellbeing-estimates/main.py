@@ -20,20 +20,24 @@ def transform(files, **kwargs):
 
     dataset_id = "wellbeing-local-authority"
     output_file = f"{location}v4-{dataset_id}.csv"
-    
+
     tabs = loadxlstabs(input_file)
     tabs_cv = loadxlstabs(cv_file)
+
+    print("** Check correct input files are being downloaded from website - has more than one release **")
+    print("Long transform - around 5 minutes")
     
-    tabs_thresholds = [tab for tab in tabs if 'thresholds' in tab.name.lower()]
+    tabs_thresholds = [tab for tab in tabs if 'threshold' in tab.name.lower()]
     tabs_means = [tab for tab in tabs if 'mean' in tab.name.lower()]
     
-    tabs_thresholds_cv = [tab for tab in tabs_cv if 'thresholds' in tab.name.lower()]
+    tabs_thresholds_cv = [tab for tab in tabs_cv if 'threshold' in tab.name.lower()]
     tabs_means_cv = [tab for tab in tabs_cv if 'mean' in tab.name.lower()]
 
     # thresholds data
-    conversionsegments, conversionsegments_data_accuracy = [], []
+    conversionsegments = []
     for tab in tabs_thresholds:
-    
+        
+        assert tab.excel_ref('A14').value.strip() == 'Area Names', f"Cell A14 in {tab.name} should be 'Area Names'"
         data_accuracy_indicators = tab.excel_ref('C14').expand(RIGHT).filter(contains_string('Data accuracy'))
         indicators = tab.excel_ref('C14').expand(RIGHT) - data_accuracy_indicators
         
@@ -53,7 +57,7 @@ def transform(files, **kwargs):
         
         conversionsegment = ConversionSegment(tab, dimensions, observations).topandas()
         conversionsegments.append(conversionsegment)
-        
+
     thresholds_data = pd.concat(conversionsegments)
     
     # splitting time and indicators apart
@@ -65,13 +69,21 @@ def transform(files, **kwargs):
             ]]
     
     # means data
-    conversionsegments, conversionsegments_data_accuracy = [], []
+    conversionsegments = []
     for tab in tabs_means:
+
+        if 'Anxiety' in tab.name:
+            assert tab.excel_ref('A14').value.strip() == 'Area Names', f"Cell A14 in {tab.name} should be 'Area Names'"
+            data_accuracy_time = tab.excel_ref('C14').expand(RIGHT).filter(contains_string('Data accuracy'))
+            time = tab.excel_ref('C14').expand(RIGHT) - data_accuracy_time
+            geography_labels = tab.excel_ref('A15').expand(DOWN).is_not_blank().is_not_whitespace()
         
-        data_accuracy_time = tab.excel_ref('C14').expand(RIGHT).filter(contains_string('Data accuracy'))
-        time = tab.excel_ref('C14').expand(RIGHT) - data_accuracy_time
+        else:
+            assert tab.excel_ref('A13').value.strip() == 'Area Names', f"Cell A13 in {tab.name} should be 'Area Names'"
+            data_accuracy_time = tab.excel_ref('C13').expand(RIGHT).filter(contains_string('Data accuracy'))
+            time = tab.excel_ref('C13').expand(RIGHT) - data_accuracy_time
+            geography_labels = tab.excel_ref('A14').expand(DOWN).is_not_blank().is_not_whitespace()
         
-        geography_labels = tab.excel_ref('A15').expand(DOWN).is_not_blank().is_not_whitespace()
         geography_codes = geography_labels.shift(1, 0)
         
         measures = tab.name
@@ -105,6 +117,8 @@ def transform(files, **kwargs):
     # CV data for thresholds 
     conversionsegments_lcl, conversionsegments_ucl = [], []
     for tab in tabs_thresholds_cv:
+
+        assert tab.excel_ref('A11').value.strip() == 'Area Names', f"Cell A11 in {tab.name} should be 'Area Names' - CV data"
     
         lcl = tab.excel_ref('C11').expand(RIGHT).filter(contains_string('LCL'))
         ucl = tab.excel_ref('C11').expand(RIGHT).filter(contains_string('UCL'))
@@ -136,7 +150,7 @@ def transform(files, **kwargs):
         
         conversionsegment = ConversionSegment(tab, dimensions_ucl, obs_ucl).topandas()
         conversionsegments_ucl.append(conversionsegment)
-        
+
     lcl_thresholds_data = pd.concat(conversionsegments_lcl).reset_index(drop=True)
     ucl_thresholds_data = pd.concat(conversionsegments_ucl).reset_index(drop=True)
     
@@ -146,6 +160,8 @@ def transform(files, **kwargs):
     # CV data for means 
     conversionsegments_lcl, conversionsegments_ucl = [], []
     for tab in tabs_means_cv:
+
+        assert tab.excel_ref('A11').value.strip() == 'Area Names', f"Cell A11 in {tab.name} should be 'Area Names' - CV data"
         
         lcl = tab.excel_ref('C11').expand(RIGHT).filter(contains_string('LCL'))
         ucl = tab.excel_ref('C11').expand(RIGHT).filter(contains_string('UCL'))
