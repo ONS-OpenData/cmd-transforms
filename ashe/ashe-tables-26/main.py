@@ -10,7 +10,7 @@ def transform(files, **kwargs):
     # ignoring any files that are not ashe files and ignoring gender pay gap file
     files = [file for file in files if '.12' not in file]
     files = [file for file in files if '.docx' not in file]
-    files = [file for file in files if 'note' not in file.lower()]
+    files = [file for file in files if 'note' not in file.lower()]    
     
     # separate data and CV interval data
     files_cv = [file for file in files if file.endswith('CV.xls')]
@@ -39,7 +39,7 @@ def transform(files, **kwargs):
     
     # removing the info tabs from each spreadsheet
     tabs = [tab for tab in flat_list if tab.name != 'Notes']
-    tabs_cv = [tab for tab in flat_list_cv if tab.name != 'CV notes']
+    tabs_cv = [tab for tab in flat_list_cv if 'note' not in tab.name.lower()] 
     
     # quick check to make sure number of files or number of tabs hasn't changed
     if len(tabs) != len(tabs_cv) or len(tabs) != len(files) * 9:
