@@ -10,6 +10,7 @@ def transform(files, **kwargs):
     # ignoring any files that are not ashe files and ignoring gender pay gap file
     files = [file for file in files if '.12' not in file]
     files = [file for file in files if '.docx' not in file]
+    files = [file for file in files if 'note' not in file.lower()]
     
     # separate data and CV interval data
     files_cv = [file for file in files if file.endswith('CV.xls')]
