@@ -40,7 +40,7 @@ def transform(files, **kwargs):
     
     # removing the info tabs from each spreadsheet
     tabs = [tab for tab in flat_list if tab.name != 'Notes']
-    tabs_cv = [tab for tab in flat_list_cv if tab.name != 'CV notes']
+    tabs_cv = [tab for tab in flat_list_cv if 'note' not in tab.name.lower()]
     
     # quick check to make sure number of files or number of tabs hasn't changed
     if len(tabs) != len(tabs_cv) or len(tabs) != len(files) * 9:
@@ -90,7 +90,7 @@ def transform(files, **kwargs):
             
             tab_name = tab.name
             
-            sheet_name = tab.excel_ref('a1').value.split(' ')[2]
+            sheet_name = tab.excel_ref('a1').value.split(' ')[1]
         
             obs = description.waffle(variable)
         
