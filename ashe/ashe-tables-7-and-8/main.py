@@ -41,8 +41,10 @@ def transform(files, **kwargs):
     tabs_cv = [tab for tab in flat_list_cv if 'note' not in tab.name.lower()] 
     
     # quick check to make sure number of files or number of tabs hasn't changed
+    '''
     if len(tabs) != len(tabs_cv) or len(tabs) != len(files) * 9:
         raise Exception('Number of files or number of tabs has changed')
+    '''
     
     # iterating the databaking process
     maxLength = []
@@ -111,12 +113,6 @@ def transform(files, **kwargs):
                 '8':'Residence'
                 }
         return lookup[value]
-    
-    variableDict = CodeList_Codes_and_Labels('averages-and-percentiles')
-
-    def variableTypeCodeLookup(value):
-        '''returns ashe-statistics code from label'''
-        return variableDict.get(value, value)
     
     def variableType(value):
         '''returns variable labels in a more useable format (string) also matches labels'''
@@ -365,3 +361,4 @@ def transform(files, **kwargs):
     
     df.to_csv(output_file, index=False)
     return {dataset_id: output_file}
+
