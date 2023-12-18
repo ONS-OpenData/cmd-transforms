@@ -176,7 +176,6 @@ def weekly_deaths_by_region(source_tabs, **kwargs):
             'week-number', 'Week', 'recorded-deaths', 'Deaths'
              ]]
     
-    
     latest_df = get_latest_version(dataset_id, 'covid-19')
     
     # removed pre filled sparsity
@@ -213,7 +212,7 @@ def weekly_deaths_by_age_sex(source_tabs, **kwargs):
         location = ''
         
     dataset_id = "weekly-deaths-age-sex"
-    output_file = f"{location}v4-weekly-deaths-age-sex.csv"
+    output_file = f"{location}v4-{dataset_id}.csv"
     
     
     tabs = source_tabs
