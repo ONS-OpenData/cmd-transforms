@@ -1,23 +1,36 @@
 from databaker.framework import *
 import pandas as pd
 
-def transform(files):
+def transform(files, **kwargs):
+    if 'location' in kwargs.keys():
+        location = kwargs['location']
+        if location == '':
+            pass
+        elif not location.endswith('/'):
+            location += '/'
+    else:
+        location = '' 
+
     assert type(files) == list, f"transform takes in a list, not {type(files)}"
     assert len(files) == 1, f"transform only takes in 1 source file, not {len(files)}"
     file = files[0]
-    output_file = "v4-suicides-in-the-uk.csv"
+
+    dataset_id = "suicides-in-the-uk"
+    output_file = f"{location}v4-{dataset_id}.csv"
     
-    tabs = loadxlstabs(file, ["Table 1"])
+    tabs = loadxlstabs(file, ["Table_1"])
 
     '''DataBaking'''
     conversionsegments = []
     for tab in tabs:
         
-        junk = tab.excel_ref("A4").expand(DOWN).filter(contains_string("Footnote")).expand(DOWN).expand(RIGHT)
-        time = tab.excel_ref("E6").expand(RIGHT).is_not_blank().is_not_whitespace()
-        geog = tab.excel_ref("A8").expand(DOWN).is_not_blank().is_not_whitespace()
+        # start point
+        assert tab.excel_ref("A5").value.startswith("Area Code"), "Start point has moved"
+        junk = tab.excel_ref("A5").expand(DOWN).filter(contains_string("Footnote")).expand(DOWN).expand(RIGHT)
+        time = tab.excel_ref("E5").expand(RIGHT).is_not_blank().is_not_whitespace()
+        geog = tab.excel_ref("A6").expand(DOWN).is_not_blank().is_not_whitespace()
         geog -= junk
-        geog_labels = tab.excel_ref('B8:D8').expand(DOWN).is_not_blank().is_not_whitespace()
+        geog_labels = tab.excel_ref('B6:D6').expand(DOWN).is_not_blank().is_not_whitespace()
         geog_labels -= junk
         
         obs = geog.waffle(time)
@@ -50,8 +63,8 @@ def transform(files):
             ]]
 
     df.to_csv(output_file, index=False)
-    print("Transform Complete")
-    return output_file
+
+    return {dataset_id: output_file}
 
 
 def v4Integers(value):
