@@ -18,7 +18,7 @@ def transform(files, **kwargs):
     dataset_id = "mid-year-pop-est"
     output_file = f"{location}v4-{dataset_id}.csv"
 
-    sheet_to_transform = '2021_geog'
+    sheet_to_transform = '2023_geog'
     source = pd.read_excel(file, sheet_name=sheet_to_transform, dtype=str)
     
     df_list = []
