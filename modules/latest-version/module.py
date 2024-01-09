@@ -37,6 +37,12 @@ def get_latest_version(dataset, edition, **kwargs):
 def check_download_available(latest_version_url):
     # checks if the csv download is available for the latest version 
     # mainly used for trade
+    if sys.platform.lower().startswith('win'):
+        verify = False
+        requests.packages.urllib3.disable_warnings()
+    else:
+        verify = True
+        
     page_dict = requests.get(latest_version_url, verify=verify).json()
     
     assert 'downloads' in page_dict.keys(), f"No download option available for {latest_version_url}"
