@@ -123,6 +123,13 @@ def transform(files, **kwargs):
                 }
         return lookup[value]
     
+     def variableTidy(value):
+        try:
+            new_value = float(value)
+            return str(new_value)
+        except:
+            return value
+    
     '''databaking data'''
     print('Databaking...')
     conversionsegments = []
@@ -274,6 +281,7 @@ def transform(files, **kwargs):
     df['tableNumber'] = df['tableNumber'].apply(tableNumberLookup)
     df['tableNumber_codelist'] = df['tableNumber'].apply(Lower)
     
+    df['variable'] = df['variable'].apply(variableTidy)
     df['Variable'] = df['Variable'].apply(variableType)
     df['Variable_codelist'] = df['Variable'].apply(variableTypeCodeLookup)
     
