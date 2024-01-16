@@ -46,12 +46,6 @@ def transform(files, **kwargs):
     if len(tabs) != len(tabs_cv) or len(tabs) != len(files) * 9:
         raise Exception('Number of files or number of tabs has changed')
     
-    # to be removed
-    ###############
-    tabs = [tab for tab in tabs if tab.name=='All']
-    tabs_cv = [tab for tab in tabs_cv if tab.name=='All']
-    ###############
-    
     max_length = []
     for tab in tabs:
         tab_max = len(tab.excel_ref('A'))
