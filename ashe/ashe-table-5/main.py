@@ -248,10 +248,11 @@ def transform(files, **kwargs):
         
         else:
             try:
-                if int(value) < 10:
-                    return f"0{str(value)}"
+                new_value = int(float(value))
+                if new_value < 10:
+                    return f"0{str(new_value)}"
                 else:
-                    return str(value)
+                    return str(new_value)
             
             except:
                 return value
@@ -299,6 +300,13 @@ def transform(files, **kwargs):
         except:
             return value
         
+    def variableTidy(value):
+        try:
+            new_value = float(value)
+            return str(new_value)
+        except:
+            return value
+        
     '''Post processing'''
     
     df['Time_codelist'] = df['TIME']
@@ -315,6 +323,7 @@ def transform(files, **kwargs):
     df['sheet_name'] = df['sheet_name'].apply(sheetNameLookup)
     df['sheet_name_codelist'] = df['sheet_name'].apply(sheetNameCodeLookup)
     
+    df['variable'] = df['variable'].apply(variableTidy)
     df['variable'] = df['variable'].apply(variableType)
     df['variable_codelist'] = df['variable'].apply(variableTypeCodeLookup)
     
