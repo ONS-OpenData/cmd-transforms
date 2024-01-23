@@ -247,7 +247,7 @@ def transform(files, **kwargs):
     dfCV = dfCV.reset_index(drop=True)
     dfCV.loc[dfCV['OBS'] == '', 'OBS'] = dfCV['DATAMARKER']
     df['CV'] = dfCV['OBS']
-    
+
     '''Post processing'''
     
     #renaming columns
@@ -281,7 +281,7 @@ def transform(files, **kwargs):
     df['tableNumber'] = df['tableNumber'].apply(tableNumberLookup)
     df['tableNumber_codelist'] = df['tableNumber'].apply(Lower)
     
-    df['variable'] = df['variable'].apply(variableTidy)
+    df['Variable'] = df['Variable'].apply(variableTidy)
     df['Variable'] = df['Variable'].apply(variableType)
     df['Variable_codelist'] = df['Variable'].apply(variableTypeCodeLookup)
     
