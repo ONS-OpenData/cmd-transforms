@@ -123,7 +123,7 @@ def transform(files, **kwargs):
                 }
         return lookup[value]
     
-     def variableTidy(value):
+    def variableTidy(value):
         try:
             new_value = float(value)
             return str(new_value)
