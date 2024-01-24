@@ -1,5 +1,6 @@
 from databaker.framework import *
 import pandas as pd
+import math
 from sparsity_functions import SparsityFiller
 #from latest_version import get_latest_version # TODO is this needed
 
@@ -34,28 +35,44 @@ def transform_weekly_deaths_by_region(source_tabs, **kwargs):
     tabs = [tab for tab in tabs if '3' in tab.name]
     assert len(tabs) == 1, f"{len(tabs)} tabs found but should have only found 1"
 
+    # iterating the databaking process
+    max_length = []
+    for tab in tabs:
+        tab_max = len(tab.excel_ref('A'))
+        max_length.append(tab_max)
+    max_length = max(max_length)
+    batch_number = 84    # iterates over this many rows at a time
+    number_of_iterations = math.ceil(max_length/batch_number)    # will iterate this many times
+       
+
     css = []
     for tab in tabs:
         # check to make sure data has not moved
         start_point = tab.excel_ref('A6')
         assert start_point.value.startswith('Week'), f"Data appears to have moved, cell A6 (Table_3) should be 'Week number' not {start_point.value}"
         
-        week_number = start_point.fill(DOWN).is_not_blank().is_not_whitespace()
-        date = week_number.shift(1, 0)
-        area = week_number.shift(2, 0)
-        cause_of_death = week_number.shift(3, 0)
+        for i in range(0, number_of_iterations):
+            
+            Min = start_point.y + 2 + batch_number * i  # data starts on below start_point
+            Max = Min + batch_number - 1
         
-        obs = week_number.shift(4, 0)
-
-        dimensions = [
-            HDim(week_number, 'week_number', DIRECTLY, LEFT),
-            HDim(date, TIME, DIRECTLY, LEFT),
-            HDim(area, GEOG, DIRECTLY, LEFT),
-            HDim(cause_of_death, 'cause_of_death', DIRECTLY, LEFT),
-        ]
-
-        cs = ConversionSegment(tab, dimensions, obs).topandas()
-        css.append(cs)
+            week_number = tab.excel_ref(f"A{Min}:A{Max}").is_not_blank().is_not_whitespace()
+            date = week_number.shift(1, 0)
+            area = week_number.shift(2, 0)
+            cause_of_death = week_number.shift(3, 0)
+            
+            obs = week_number.shift(4, 0)
+    
+            dimensions = [
+                HDim(week_number, 'week_number', DIRECTLY, LEFT),
+                HDim(date, TIME, DIRECTLY, LEFT),
+                HDim(area, GEOG, DIRECTLY, LEFT),
+                HDim(cause_of_death, 'cause_of_death', DIRECTLY, LEFT),
+            ]
+            
+            if len(obs) != 0:
+                cs = ConversionSegment(tab, dimensions, obs).topandas()
+                css.append(cs)
 
     df = pd.concat(css)
 
@@ -103,35 +120,52 @@ def transform_weekly_deaths_by_age_and_sex(source_tabs, **kwargs):
     tabs = [tab for tab in tabs if tab.name.lower() in ('table_1', 'table_2')]
     assert len(tabs) == 2, f"{len(tabs)} tabs found but should have only found 2"
     
-    # TODO - may need to rewrite if table appends each week data
+    # iterating the databaking process - file length is going to get long
+    max_length = []
+    for tab in tabs:
+        tab_max = len(tab.excel_ref('A'))
+        max_length.append(tab_max)
+    max_length = max(max_length)
+    batch_number = 20    # iterates over this many rows at a time
+    number_of_iterations = math.ceil(max_length/batch_number)    # will iterate this many times
+    
     css = []
     for tab in tabs:
+        
         # get start point
         start_point = tab.excel_ref('A').filter(contains_string('Week number'))
+        assert start_point.value.startswith('Week'), f"Data appears to have moved, cell {start_point} (tab.name) should be 'Week number' not {start_point.value}"
         
-        week_number = start_point.fill(DOWN).is_not_blank().is_not_whitespace()
-        date = week_number.shift(1, 0)
-        area = week_number.shift(2, 0)
-        sex = week_number.shift(3, 0)
-        age = week_number.shift(4, 0)
-        place = week_number.shift(5, 0)
-        
-        obs = week_number.shift(6, 0)
-        
-        dimensions = [
-                HDim(week_number, 'week_number', DIRECTLY, LEFT),
-                HDim(date, TIME, DIRECTLY, LEFT),
-                HDim(area, GEOG, DIRECTLY, LEFT),
-                HDim(sex, 'sex', DIRECTLY, LEFT),
-                HDim(age, 'age', DIRECTLY, LEFT),
-                HDimConst('tab_name', tab.name),
-                HDim(place, 'place', DIRECTLY, LEFT),
-            ]
-        
-        cs = ConversionSegment(tab, dimensions, obs).topandas()
-        css.append(cs)
+        for i in range(0, number_of_iterations):
+            
+            Min = start_point.y + 2 + batch_number * i  # data starts below start_point
+            Max = Min + batch_number - 1
+            
+            week_number = tab.excel_ref(f"A{Min}:A{Max}").is_not_blank().is_not_whitespace()
+            date = week_number.shift(1, 0)
+            area = week_number.shift(2, 0)
+            sex = week_number.shift(3, 0)
+            age = week_number.shift(4, 0)
+            place = week_number.shift(5, 0)
+            
+            obs = week_number.shift(6, 0)
+            
+            dimensions = [
+                    HDim(week_number, 'week_number', DIRECTLY, LEFT),
+                    HDim(date, TIME, DIRECTLY, LEFT),
+                    HDim(area, GEOG, DIRECTLY, LEFT),
+                    HDim(sex, 'sex', DIRECTLY, LEFT),
+                    HDim(age, 'age', DIRECTLY, LEFT),
+                    HDimConst('tab_name', tab.name),
+                    HDim(place, 'place', DIRECTLY, LEFT),
+                ]
+            
+            if len(obs) != 0:
+                cs = ConversionSegment(tab, dimensions, obs).topandas()
+                css.append(cs)
 
     df = pd.concat(css)
+    df = df.reset_index(drop=True)
 
     df['OBS'] = df['OBS'].apply(lambda x: str(int(x)))
     
