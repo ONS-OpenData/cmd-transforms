@@ -60,6 +60,7 @@ def transform(files, **kwargs):
     
     df = pd.concat(conversionsegments).reset_index(drop=True)
 
+    df['week_commencing'] = df['week_commencing'].apply(TimeFormatCorrector)
     df['TIME'] = df['week_commencing'].apply(lambda x: str(x).split('/')[-1])
     df['month'] = df['week_commencing'].apply(lambda x: str(x).split('/')[1])
     # if week 1 starts in december then the year will be incorrect -> add 1 to it
@@ -131,6 +132,14 @@ def VisitType(value):
             'Weekly Passenger visits':'Passenger ship visits'
             }
     return lookup[value]
+
+def TimeFormatCorrector(value):
+    try:
+        as_datetime = datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
+        corrected_format = datetime.strftime(as_datetime, '%d/%m/%Y')
+        return corrected_format
+    except:
+        return value
 
 def YearCalculator(value):
     '''
