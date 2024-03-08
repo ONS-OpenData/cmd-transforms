@@ -1,8 +1,7 @@
 from databaker.framework import *
 import pandas as pd
 from sparsity_functions import SparsityFiller
-import datetime
-
+import datetime, math
 
 def transform(files, **kwargs):
     if 'location' in kwargs.keys():
@@ -20,6 +19,116 @@ def transform(files, **kwargs):
 
     dataset_id = "traffic-camera-activity"
     output_file = f"{location}v4-{dataset_id}.csv"
+
+    tabs = loadxlstabs(file)
+    tabs = [tab for tab in tabs if 'note' not in tab.name.lower()] # remove note tab
+    tabs = [tab for tab in tabs if 'content' not in tab.name.lower()]
+
+    # iterating the databaking process
+    max_length = []
+    for tab in tabs:
+        tab_max = len(tab.excel_ref('A'))
+        max_length.append(tab_max)
+    max_length = max(max_length)
+    batch_number = 20    # iterates over this many rows at a time
+    number_of_iterations = math.ceil(max_length/batch_number)    # databaking will iterate this many times
+
+    
+    '''DataBaking'''
+    conversionsegments = []
+    for tab in tabs:
+        junk = tab.filter(contains_string('Note:')).expand(DOWN).expand(RIGHT) # unwated notes
+        area = tab.excel_ref('B1').expand(RIGHT).is_not_blank().is_not_whitespace()
+        vehicle = tab.excel_ref('B2').expand(RIGHT).is_not_blank().is_not_whitespace()
+        adjustment = tab.name
+        
+        for i in range(0, number_of_iterations):
+        
+            Min = str(4 + batch_number * i)  # data starts on row 4
+            Max = str(int(Min) + batch_number - 1) 
+            
+            date = tab.excel_ref(f'A{Min}:A{Max}').is_not_blank().is_not_whitespace()
+            date -= junk
+        
+            obs = area.waffle(date)
+        
+            dimensions = [
+                    HDimConst(TIME, 'year'), # year to be filled in later
+                    HDimConst(GEOG, 'K02000001'),
+                    HDim(date, 'date', DIRECTLY, LEFT),
+                    HDim(area, 'area', DIRECTLY, ABOVE),
+                    HDim(vehicle, 'vehicle', DIRECTLY, ABOVE),
+                    HDimConst('adjustment', adjustment)
+                    ]
+            
+            for cell in dimensions[2].hbagset:
+                dimensions[2].AddCellValueOverride(cell, str(cell.value))
+                
+            if len(obs) != 0:
+                # only use ConversionSegment if there is data
+                conversionsegment = ConversionSegment(tab, dimensions, obs).topandas()
+                conversionsegments.append(conversionsegment)
+
+    df = pd.concat(conversionsegments)
+
+    '''Post Processing'''
+    df['OBS'] = df['OBS'].apply(v4Integers)
+
+    df['calendar-years'] = df['date'].apply(DateToYear)
+    df['Time'] = df['calendar-years']
+
+    df['Geography'] = 'United Kingdom'
+
+    df['dd-mm'] = df['date'].apply(DateToDDMMM)
+    df['date'] = df['dd-mm']
+    df['dd-mm'] = df['dd-mm'].apply(lambda x: x.lower())
+
+    df['traffic-camera-area'] = df['area'].apply(Slugize)
+
+    df['vehicle'] = df['vehicle'].apply(lambda x: x.capitalize())
+    df['pedestrians-and-vehicles'] = df['vehicle'].apply(Slugize)
+
+    df['adjustment'] = df['adjustment'].apply(SeasonalAdjustment)
+    df['seasonal-adjustment'] = df['adjustment'].apply(Slugize)
+
+    df = df.rename(columns={
+        'OBS':'v4_1',
+        'DATAMARKER':'Data Marking',
+        'GEOG':'uk-only',
+        'date':'DayMonth',
+        'area':'TrafficCameraArea',
+        'vehicle':'PedestriansAndVehicles',
+        'adjustment':'SeasonalAdjustment'
+        }
+    )
+
+    df = df[['v4_1', 'Data Marking', 'calendar-years', 'Time', 'uk-only', 'Geography',
+                'dd-mm', 'DayMonth', 'traffic-camera-area', 'TrafficCameraArea', 
+                'pedestrians-and-vehicles', 'PedestriansAndVehicles', 'seasonal-adjustment', 'SeasonalAdjustment']]
+
+    df.to_csv(output_file, index=False)
+    SparsityFiller(output_file, '*')
+
+    return {dataset_id: output_file}
+
+
+def transform_old(files, **kwargs):
+    # keeping here in case issue with updated transform
+    if 'location' in kwargs.keys():
+        location = kwargs['location']
+        if location == '':
+            pass
+        elif not location.endswith('/'):
+            location += '/'
+    else:
+        location = '' 
+
+    assert type(files) == list, f"transform takes in a list, not {type(files)}"
+    assert len(files) == 1, f"transform only takes in 1 source file, not {len(files)} /n {files}"
+    file = files[0]
+
+    dataset_id = "traffic-camera-activity"
+    output_file = f"{location}v4-{dataset_id}-old.csv"
 
     tabs = loadxlstabs(file)
     tabs = [tab for tab in tabs if 'note' not in tab.name.lower()] # remove note tab
