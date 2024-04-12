@@ -18,6 +18,8 @@ def transform(files, **kwargs):
     dataset_id = "trade"
     output_file = f"{location}v4-{dataset_id}.csv"
 
+    get_latest_version('trade', 'time-series', check=True)
+
     imports_file = [file for file in files if 'import' in file.lower()][0]
     exports_file = [file for file in files if 'export' in file.lower()][0]
 
@@ -71,7 +73,8 @@ def transform(files, **kwargs):
     df['v4_0'] = df['v4_0'].apply(v4Integers) #changes floats to string-integers
     
     print('Reading in previous version')
-    previous_df = get_latest_version('trade', 'time-series')
+    previous_df = get_latest_version(dataset_id, 'time-series')
+    # previous_df = get_latest_version('trade', 'time-series', version_number='39')
     previous_df = previous_df[previous_df['Time'].apply(Year_Remover)]
 
     new_df = pd.concat([previous_df, df])
