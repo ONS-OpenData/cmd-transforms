@@ -2,9 +2,15 @@ import pandas as pd
 import io, requests, sys
 
 def get_latest_version(dataset, edition, **kwargs):
-    '''
-    Pulls the latest v4 from CMD for a given dataset and edition
-    '''
+    # Pulls the latest v4 from CMD for a given dataset and edition
+    # can be used as a check to see if the download is available by passing 
+    # check=True as a kwarg - mainly to be used with trade
+
+    if 'check' in kwargs:
+        use_as_check = kwargs['check']
+    else:
+        use_as_check = False
+    
     if sys.platform.lower().startswith('win'):
         verify = False
         requests.packages.urllib3.disable_warnings()
@@ -28,6 +34,10 @@ def get_latest_version(dataset, edition, **kwargs):
     latest_version = requests.get(url, verify=verify).json()
     # check download option exists
     check_download_available(url)
+    if use_as_check == True:
+        # stop here if only checking that data is available
+        return
+    
     # decode data frame
     file_location = requests.get(latest_version['downloads']['csv']['href'], verify=verify)
     file_object = io.StringIO(file_location.content.decode('utf-8'))
@@ -49,3 +59,4 @@ def check_download_available(latest_version_url):
     assert 'csv' in page_dict['downloads'].keys(), f"No csv download available for {latest_version_url}"
     print(f"Download options available for {latest_version_url}")
     return
+
