@@ -15,7 +15,7 @@ def transform(files, **kwargs):
     assert len(files) == 2, f"transform takes in 2 source files, not {len(files)} /n {files}"
 
     dataset_id = "labour-market"
-    edition = "PWT22"
+    edition = "PWT23"
     output_file = f"{location}v4-{dataset_id}-{edition}.csv"
 
     rates_file = [file for file in files if "rates" in file][0]
@@ -23,10 +23,13 @@ def transform(files, **kwargs):
     
     df_rates = pd.read_csv(rates_file, dtype=str)
     df_levels = pd.read_csv(levels_file, dtype=str)
+
+    DataMarkingCheck(df_rates)
+    DataMarkingCheck(df_levels)
     
     # renaming the columns we are interested in
     rename_cols = {
-            'obs':'v4_1',
+            'obs':'v4_0',
             'Time dim it id':'Time',
             'dim1itid':'EconomicActivity',
             'dim2itid':'AgeGroups',
@@ -49,7 +52,6 @@ def transform(files, **kwargs):
     df_rates['SeasonalAdjustment'] = df_rates['SeasonalAdjustment'].apply(SeasonalValues)
     df_rates['Sex'] = df_rates['Sex'].apply(SexLabel)
     df_rates['sex'] = df_rates['Sex'].apply(Slugize)
-    df_rates['Data Marking'] = None
     
     df_levels['mmm-mmm-yyyy'] = df_levels['Time'].apply(Slugize)
     df_levels['uk-only'] = 'K02000001'
@@ -63,11 +65,10 @@ def transform(files, **kwargs):
     df_levels['SeasonalAdjustment'] = df_levels['SeasonalAdjustment'].apply(SeasonalValues)
     df_levels['Sex'] = df_levels['Sex'].apply(SexLabel)
     df_levels['sex'] = df_levels['Sex'].apply(Slugize)
-    df_levels['Data Marking'] = None
     
     # getting rid of unwanted columns
     columns_to_keep = [
-        'v4_1', 'Data Marking', 'mmm-mmm-yyyy', 'Time', 'uk-only', 'Geography',
+        'v4_0', 'mmm-mmm-yyyy', 'Time', 'uk-only', 'Geography',
         'unit-of-measure', 'UnitOfMeasure', 'economic-activity','EconomicActivity', 
         'age-groups', 'AgeGroups', 'sex', 'Sex', 'seasonal-adjustment', 'SeasonalAdjustment'
         ]
@@ -77,15 +78,12 @@ def transform(files, **kwargs):
     
     # combining the two
     df = pd.concat([df_rates, df_levels])
-    
-    # moving data markings to a separate column
-    df.loc[df['v4_1'] == '*', 'Data Marking'] = '*'
 
     previous_v4 = get_latest_version(dataset_id, edition)
-    previous_v4 = previous_v4.rename(columns={'V4_1':'v4_1'})
+    if "Data Marking" in previous_v4.columns:
+        raise NotImplementedError("Transform not set up to include data markings from previous v4")
 
     new_df = pd.concat([previous_v4, df]).drop_duplicates()
-
     new_df.to_csv(output_file, index=False)
 
     return {dataset_id: output_file}
@@ -111,3 +109,7 @@ def SexLabel(value):
 def Slugize(value):
     new_value = value.replace(' ', '-').lower()
     return new_value
+
+def DataMarkingCheck(dataframe):
+    assert len(dataframe["data marking"].unique()) == 1, "There are data markings in the source data, transform is not set up to include these"
+    return
