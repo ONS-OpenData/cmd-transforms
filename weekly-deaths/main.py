@@ -134,7 +134,8 @@ def transform_weekly_deaths_by_age_and_sex(source_tabs, **kwargs):
         
         # get start point
         start_point = tab.excel_ref('A').filter(contains_string('Week number'))
-        assert start_point.value.startswith('Week'), f"Data appears to have moved, cell {start_point} (tab.name) should be 'Week number' not {start_point.value}"
+        assert len(start_point) != 0, f"Data appears to have moved, could not find cell containing 'Week number' in column 'A' in tab '{tab.name}'"
+        assert start_point.value.startswith('Week'), f"Data appears to have moved, cell {start_point} in tab {tab.name} should be 'Week number' not {start_point.value}"
         
         for i in range(0, number_of_iterations):
             
