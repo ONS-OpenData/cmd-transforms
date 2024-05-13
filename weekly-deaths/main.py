@@ -81,8 +81,6 @@ def transform_weekly_deaths_by_region(source_tabs, **kwargs):
     df['TIME'] = df['TIME'].apply(lambda x: x[-4:])
     df['calendar-years'] = df['TIME']
 
-    # code here in case needed in future
-    #df['GEOG'] = df['GEOG'].apply(lambda x: 'England and Wales' if 'non-residents' in x else x)
     # remove England, Wales and non-residents
     df = df[df['GEOG'] != "England, Wales and non-residents"]
     df['administrative-geography'] = df['GEOG'].apply(geography_codes_from_labels)
@@ -133,8 +131,15 @@ def transform_weekly_deaths_by_age_and_sex(source_tabs, **kwargs):
     for tab in tabs:
         
         # get start point
-        start_point = tab.excel_ref('A').filter(contains_string('Week number'))
-        assert len(start_point) != 0, f"Data appears to have moved, could not find cell containing 'Week number' in column 'A' in tab '{tab.name}'"
+        if tab.name.lower() == 'table_1':
+            start_column = 'A'
+            start_point = tab.excel_ref(start_column).filter(contains_string('Week number'))
+        
+        elif tab.name.lower() == 'table_2':
+            start_column = 'B'
+            start_point = tab.excel_ref(start_column).filter(contains_string('Week number'))
+
+        assert len(start_point) != 0, f"Data appears to have moved, could not find cell containing 'Week number' in column '{start_column}' in tab '{tab.name}'"
         assert start_point.value.startswith('Week'), f"Data appears to have moved, cell {start_point} in tab {tab.name} should be 'Week number' not {start_point.value}"
         
         for i in range(0, number_of_iterations):
@@ -142,7 +147,7 @@ def transform_weekly_deaths_by_age_and_sex(source_tabs, **kwargs):
             Min = start_point.y + 2 + batch_number * i  # data starts below start_point
             Max = Min + batch_number - 1
             
-            week_number = tab.excel_ref(f"A{Min}:A{Max}").is_not_blank().is_not_whitespace()
+            week_number = tab.excel_ref(f"{start_column}{Min}:{start_column}{Max}").is_not_blank().is_not_whitespace()
             date = week_number.shift(1, 0)
             area = week_number.shift(2, 0)
             sex = week_number.shift(3, 0)
@@ -173,8 +178,6 @@ def transform_weekly_deaths_by_age_and_sex(source_tabs, **kwargs):
     df['TIME'] = df['TIME'].apply(lambda x: x[-4:])
     df['calendar-years'] = df['TIME']
 
-    # code here in case needed in future
-    #df['GEOG'] = df['GEOG'].apply(lambda x: 'England and Wales' if 'non-residents' in x else x)
     # remove England, Wales and non-residents
     df = df[df['GEOG'] != "England, Wales and non-residents"]
     df['administrative-geography'] = df['GEOG'].apply(geography_codes_from_labels)
