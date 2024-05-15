@@ -2,7 +2,6 @@ from databaker.framework import *
 import pandas as pd
 import math
 from sparsity_functions import SparsityFiller
-#from latest_version import get_latest_version # TODO is this needed
 
 def transform(files, **kwargs):        
     assert type(files) == list, f"transform takes in a list, not {type(files)}"
@@ -104,6 +103,8 @@ def transform_weekly_deaths_by_region(source_tabs, **kwargs):
             'v4_0', 'calendar-years', 'Time', 'administrative-geography', 'Geography',
             'week-number', 'Week', 'cause-of-death', 'CauseOfDeath'
         ]]
+    
+    assert len(df["Time"].unique()) == 1, "found more than one calendar year in weekly deaths by region"
     
     df.to_csv(output_file, index=False)
     SparsityFiller(output_file, 'x')
@@ -210,6 +211,15 @@ def transform_weekly_deaths_by_age_and_sex(source_tabs, **kwargs):
         'sex', 'Sex', 'age-groups', 'AgeGroups', 'registration-or-occurrence', 'RegistrationOrOccurrence'
         ]]
     
+    # check to see if registrations data has 2023 in it
+    t = df[df["registration-or-occurrence"] == "registrations"]
+    t = t[t["Time"] == "2023"]
+    if len(t) > 0:
+        raise Exception("Registrations data found for 2023 - will need to include this")
+    
+    df = df[df["Time"] != "2023"]
+    assert len(df["Time"].unique()) == 1, "found more than one calendar year in weekly deaths by age & sex"
+
     df.to_csv(output_file, index=False)
     SparsityFiller(output_file, 'x')
     
