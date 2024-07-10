@@ -53,7 +53,7 @@ def sexLabels(value):
         '0':'All', '2':'Male', '1':'Female',
         'a':'All', 'm':'Male', 'f':'Female',
         }
-    return lookup[value]
+    return lookup[value.lower()]
 
 def ageLabels(value):
     if value == 'total':
