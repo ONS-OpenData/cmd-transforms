@@ -18,8 +18,11 @@ def transform(files, **kwargs):
     dataset_id = "mid-year-pop-est"
     output_file = f"{location}v4-{dataset_id}.csv"
 
-    sheet_to_transform = '2023_geog'
-    source = pd.read_excel(file, sheet_name=sheet_to_transform, dtype=str)
+    # quick check to make sure only one sheet found
+    source_dict = pd.read_excel(file, sheet_name=None, dtype=str)
+    assert len(source_dict) == 1, f"There are {len(source_dict)} tabs in this spreadsheet, transform is built to only take in one"
+    source = source_dict[list(source_dict.keys())[0]]
+    del source_dict
     
     df_list = []
     for col in source.columns:
