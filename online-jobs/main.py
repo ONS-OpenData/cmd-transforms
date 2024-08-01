@@ -113,6 +113,8 @@ def transform(files, **kwargs):
     if '2025' in df['calendar-years'].unique():
         raise Exception("aborting, 2025 is in data, check if week numbers are skewed")
     
+    df.loc[df['v4_1'] == '[x]', 'v4_1'] = ''
+    
     df.to_csv(output_file, index=False)
     SparsityFiller(output_file, data_marker)
     
