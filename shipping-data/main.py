@@ -84,6 +84,9 @@ def transform(files, **kwargs):
     
     df['visit'] = df['visit'].apply(VisitType)
     df['visit_codelist'] = df['visit'].apply(Slugize)
+
+    if not "DATAMARKER" in df.columns:
+        df['DATAMARKER'] = ""
     
     df = df.rename(columns={
             'OBS':'v4_1',
@@ -99,12 +102,12 @@ def transform(files, **kwargs):
             'port':'Port'
             }
         )
-    
+   
     df = df[[
             'v4_1', 'Data Marking', 'calendar-years', 'Time', 'uk-only', 'Geography',
             'week-number', 'Week', 'shipping-port', 'Port', 'ship-and-visit-type', 'ShipAndVisitType'
             ]]
-    
+        
     # filling in data marker where there is no data marker
     df.loc[(df['v4_1'] == '') & pd.isnull(df['Data Marking']), 'Data Marking'] = data_marker_missing_data
     
