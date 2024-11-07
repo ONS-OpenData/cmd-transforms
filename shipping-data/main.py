@@ -36,7 +36,8 @@ def transform(files, **kwargs):
         
         week_commencing = week_number.shift(1, 0)
         
-        port = tab.excel_ref('C3').expand(RIGHT).is_not_blank().is_not_whitespace()
+        assert tab.excel_ref('C6').value == 'All of UK', f"Expecting 'All of UK' in cell C6 but got '{tab.excel_ref('C6').value}'"
+        port = tab.excel_ref('C6').expand(RIGHT).is_not_blank().is_not_whitespace()
 
         visit = tab.name
         
@@ -127,6 +128,11 @@ def Slugize(value):
     return new_value
 
 def VisitType(value):
+    if value[0].isnumeric():
+        new_value = value.split(value[0])[-1].strip()
+    else:
+        new_value = value
+
     lookup = {
             'Weekly all visits':'All visits', 
             'Weekly all unique ships':'All unique ship visits',
@@ -134,7 +140,7 @@ def VisitType(value):
             'Weekly C&T unique ships':'Cargo and tanker unique ship visits',
             'Weekly Passenger visits':'Passenger ship visits'
             }
-    return lookup[value]
+    return lookup[new_value]
 
 def TimeFormatCorrector(value):
     try:
