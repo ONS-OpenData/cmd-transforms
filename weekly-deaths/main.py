@@ -142,6 +142,8 @@ def transform_weekly_deaths_by_age_and_sex(source_tabs, **kwargs):
 
         assert len(start_point) != 0, f"Data appears to have moved, could not find cell containing 'Week number' in column '{start_column}' in tab '{tab.name}'"
         assert start_point.value.startswith('Week'), f"Data appears to have moved, cell {start_point} in tab {tab.name} should be 'Week number' not {start_point.value}"
+        # check that column names are as expected - new column 'IMD quantile group'
+        assert 'imd quantile group' in [x.value.lower() for x in tab.excel_ref(f'{start_point.y + 1}').expand(RIGHT).is_not_blank().is_not_whitespace()]
         
         for i in range(0, number_of_iterations):
             
@@ -153,9 +155,10 @@ def transform_weekly_deaths_by_age_and_sex(source_tabs, **kwargs):
             area = week_number.shift(2, 0)
             sex = week_number.shift(3, 0)
             age = week_number.shift(4, 0)
-            place = week_number.shift(5, 0)
+            quintile = week_number.shift(5, 0)
+            place = week_number.shift(6, 0)
             
-            obs = week_number.shift(6, 0)
+            obs = week_number.shift(7, 0)
             
             dimensions = [
                     HDim(week_number, 'week_number', DIRECTLY, LEFT),
@@ -165,6 +168,7 @@ def transform_weekly_deaths_by_age_and_sex(source_tabs, **kwargs):
                     HDim(age, 'age', DIRECTLY, LEFT),
                     HDimConst('tab_name', tab.name),
                     HDim(place, 'place', DIRECTLY, LEFT),
+                    HDim(quintile, 'quintile', DIRECTLY, LEFT),
                 ]
             
             if len(obs) != 0:
@@ -196,7 +200,10 @@ def transform_weekly_deaths_by_age_and_sex(source_tabs, **kwargs):
     df['registration-or-occurrence'] = df['RegistrationOrOccurrence'].apply(slugize)
 
     df = df[df['place'] == 'All places']
-    assert len(df) != 0, "Length of df is 0 - something gone wrong"
+    assert len(df) != 0, "Length of df is 0 after df['place'] filter - something gone wrong"
+
+    df = df[df['quintile'] == 'All groups']
+    assert len(df) != 0, "Length of df is 0 after df['quintile'] filter - something gone wrong"
 
     df = df.rename(columns={
             'OBS': 'v4_0',
