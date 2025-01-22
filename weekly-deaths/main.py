@@ -1,34 +1,75 @@
 from databaker.framework import *
 import pandas as pd
-import math
+import math, os
 from sparsity_functions import SparsityFiller
 
 def transform(files, **kwargs):        
     assert type(files) == list, f"transform takes in a list, not {type(files)}"
-    assert len(files) == 1, f"transform only takes in 1 source file, not {len(files)} /n {files}"
-    file = files[0]
+    assert len(files) == 2, f"transform only takes in 2 source files, not {len(files)} /n {files}"
+    # file = files[0]
     
     # output used for upload
     output = {
-            'weekly-deaths-age-sex': '',
-            'weekly-deaths-region': ''
+            'weekly-deaths-age-sex': 'v4-weekly-deaths-age-sex.csv',
+            'weekly-deaths-region': 'v4-weekly-deaths-region.csv'
             }
-    
-    source_tabs = loadxlstabs(file)
-    
-    # weekly deaths region
-    output_file = transform_weekly_deaths_by_region(source_tabs)
-    output['weekly-deaths-region'] = output_file
 
-    # weekly deaths age sex
-    output_file = transform_weekly_deaths_by_age_and_sex(source_tabs)
-    output['weekly-deaths-age-sex'] = output_file
+    output_files = []
     
+    for i in range(2):
+        # i = 0 - 2025 data 
+        # i = 1 - 2024 data
+
+        year_of_data = {
+            0: '2025',
+            1: '2024'
+            }
+
+        source_tabs = loadxlstabs(files[i])
+    
+        # weekly deaths region
+        output_file = transform_weekly_deaths_by_region(source_tabs, year_of_data[i])
+        output_files.append(output_file)
+
+        # weekly deaths age sex
+        output_file = transform_weekly_deaths_by_age_and_sex(source_tabs, year_of_data[i])
+        output_files.append(output_file)
+
+    data_combiner(output_files)
+        
     return output
 
-def transform_weekly_deaths_by_region(source_tabs, **kwargs):        
+def data_combiner(output_files):
+    data = {
+        'weekly-deaths-region': [],
+        'weekly-deaths-age-sex': []
+    }
+    print("reading in files to concat")
+    for file in output_files:
+        df_loop = pd.read_csv(file, dtype=str)
+        if 'weekly-deaths-age-sex' in file:
+            data['weekly-deaths-age-sex'].append(df_loop)
+        elif 'weekly-deaths-region' in file:
+            data['weekly-deaths-region'].append(df_loop)
+
+    df_age_sex = pd.concat(data['weekly-deaths-age-sex'])
+    df_region = pd.concat(data['weekly-deaths-region'])
+
+    df_age_sex.to_csv('v4-weekly-deaths-age-sex.csv', index=False)
+    SparsityFiller('v4-weekly-deaths-age-sex.csv', 'x')
+
+    df_region.to_csv('v4-weekly-deaths-region.csv', index=False)
+    SparsityFiller('v4-weekly-deaths-region.csv', 'x')
+
+    for file in output_files:
+        print(f"removing {file}")
+        os.remove(file)
+
+    return
+
+def transform_weekly_deaths_by_region(source_tabs, year, **kwargs):        
     dataset_id = "weekly-deaths-region"
-    output_file = f"v4-{dataset_id}.csv"
+    output_file = f"v4-{dataset_id}-{year}.csv"
 
     tabs = source_tabs
     tabs = [tab for tab in tabs if '3' in tab.name]
@@ -103,17 +144,17 @@ def transform_weekly_deaths_by_region(source_tabs, **kwargs):
             'v4_0', 'calendar-years', 'Time', 'administrative-geography', 'Geography',
             'week-number', 'Week', 'cause-of-death', 'CauseOfDeath'
         ]]
-    
-    assert len(df["Time"].unique()) == 1, "found more than one calendar year in weekly deaths by region"
+
+    df = df[df["Time"] == year]
+    assert len(df["Time"].unique()) == 1, f"found more than one calendar year in {year} weekly deaths by region"
     
     df.to_csv(output_file, index=False)
-    SparsityFiller(output_file, 'x')
-
+    
     return output_file
 
-def transform_weekly_deaths_by_age_and_sex(source_tabs, **kwargs):
+def transform_weekly_deaths_by_age_and_sex(source_tabs, year, **kwargs):
     dataset_id = "weekly-deaths-age-sex"
-    output_file = f"v4-{dataset_id}.csv"
+    output_file = f"v4-{dataset_id}-{year}.csv"
 
     tabs = source_tabs
     tabs = [tab for tab in tabs if tab.name.lower() in ('table_1', 'table_2')]
@@ -143,7 +184,7 @@ def transform_weekly_deaths_by_age_and_sex(source_tabs, **kwargs):
         assert len(start_point) != 0, f"Data appears to have moved, could not find cell containing 'Week number' in column '{start_column}' in tab '{tab.name}'"
         assert start_point.value.startswith('Week'), f"Data appears to have moved, cell {start_point} in tab {tab.name} should be 'Week number' not {start_point.value}"
         # check that column names are as expected - new column 'IMD quantile group'
-        assert 'imd quantile group' in [x.value.lower() for x in tab.excel_ref(f'{start_point.y + 1}').expand(RIGHT).is_not_blank().is_not_whitespace()]
+        assert 'imd quantile group' in [x.value.lower() for x in tab.excel_ref(f'{start_point.y + 1}').expand(RIGHT).is_not_blank().is_not_whitespace()], "'imd quantile group' not found in data columns"
         
         for i in range(0, number_of_iterations):
             
@@ -224,11 +265,10 @@ def transform_weekly_deaths_by_age_and_sex(source_tabs, **kwargs):
     if len(t) > 0:
         raise Exception("Registrations data found for 2023 - will need to include this")
     
-    df = df[df["Time"] != "2023"]
-    assert len(df["Time"].unique()) == 1, "found more than one calendar year in weekly deaths by age & sex"
+    df = df[df["Time"] == year]
+    assert len(df["Time"].unique()) == 1, f"found more than one calendar year in {year} weekly deaths by age & sex"
 
     df.to_csv(output_file, index=False)
-    SparsityFiller(output_file, 'x')
     
     return output_file
 
