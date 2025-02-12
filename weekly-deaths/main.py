@@ -32,8 +32,11 @@ def transform(files, **kwargs):
         output_files.append(output_file)
 
         # weekly deaths age sex
-        output_file = transform_weekly_deaths_by_age_and_sex(source_tabs, year_of_data[i])
-        output_files.append(output_file)
+        if i == 0:
+            output_file = transform_weekly_deaths_by_age_and_sex(source_tabs, year_of_data[i])
+            output_files.append(output_file)
+        else:
+            continue
 
     data_combiner(output_files)
         
@@ -49,7 +52,7 @@ def data_combiner(output_files):
         df_loop = pd.read_csv(file, dtype=str)
         if 'weekly-deaths-age-sex' in file:
             data['weekly-deaths-age-sex'].append(df_loop)
-        elif 'weekly-deaths-region' in file:
+        if 'weekly-deaths-region' in file:
             data['weekly-deaths-region'].append(df_loop)
 
     df_age_sex = pd.concat(data['weekly-deaths-age-sex'])
@@ -83,7 +86,6 @@ def transform_weekly_deaths_by_region(source_tabs, year, **kwargs):
     max_length = max(max_length)
     batch_number = 84    # iterates over this many rows at a time
     number_of_iterations = math.ceil(max_length/batch_number)    # will iterate this many times
-       
 
     css = []
     for tab in tabs:
@@ -326,7 +328,10 @@ def age_groups_labels(value):
             '75 to 79': '75-79',
             '80 to 84': '80-84',
             '85 to 89': '85-89',
-            '90 and over': '90+'
+            '90 and over': '90+',
+            '90 to 94': '90-94',
+            '95 to 99': '95-99',
+            '100 and over': '100+',
         }
     return lookup[value]
 
