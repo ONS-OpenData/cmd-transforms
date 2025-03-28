@@ -18,7 +18,8 @@ def transform(files, **kwargs):
     dataset_id = "trade"
     output_file = f"{location}v4-{dataset_id}.csv"
 
-    get_latest_version('trade', 'time-series', check=True)
+    # currently not needed
+    # get_latest_version('trade', 'time-series', check=True) 
 
     imports_file = [file for file in files if 'import' in file.lower()][0]
     exports_file = [file for file in files if 'export' in file.lower()][0]
@@ -72,18 +73,20 @@ def transform(files, **kwargs):
     df['v4_0'] = df['v4_0'].apply(NANRemover) #changes any 'nan' to ''
     df['v4_0'] = df['v4_0'].apply(v4Integers) #changes floats to string-integers
     
-    print('Reading in previous version')
-    previous_df = get_latest_version(dataset_id, 'time-series')
-    # previous_df = get_latest_version('trade', 'time-series', version_number='39')
-    previous_df = previous_df[previous_df['Time'].apply(Year_Remover)]
+    # removing reading in previous version
+    # will only include data in the published spreadsheet - 2018 onwards
+    # print('Reading in previous version')
+    # previous_df = get_latest_version(dataset_id, 'time-series')
+    # previous_df = get_latest_version('trade', 'time-series', version_number='52')
+    # previous_df = previous_df[previous_df['Time'].apply(Year_Remover)]
+    # new_df = pd.concat([previous_df, df])
+    # new_df['countries-and-territories'] = new_df['countries-and-territories'].apply(CountryCorrector)
+    # assert len(new_df) == len(new_df.drop_duplicates()), 'duplicate values in v4'
 
-    new_df = pd.concat([previous_df, df])
-
-    new_df['countries-and-territories'] = new_df['countries-and-territories'].apply(CountryCorrector)
-
-    assert len(new_df) == len(new_df.drop_duplicates()), 'duplicate values in v4'
+    df['countries-and-territories'] = df['countries-and-territories'].apply(CountryCorrector)
+    assert len(df) == len(df.drop_duplicates()), 'duplicate values in v4'
                 
-    new_df.to_csv(output_file, index=False)
+    df.to_csv(output_file, index=False)
     print('Transform complete!')
 
     return {dataset_id: output_file}
