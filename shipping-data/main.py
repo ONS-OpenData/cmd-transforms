@@ -31,7 +31,8 @@ def transform(files, **kwargs):
     for tab in tabs:
         junk = tab.excel_ref('A').filter(contains_string('x:')).expand(RIGHT)#.expand(DOWN)
         
-        week_number = tab.excel_ref('A').filter(contains_string('Week')).fill(DOWN).is_not_blank().is_not_whitespace()
+        assert tab.excel_ref('A6').value.strip() == 'Week', f"Expecting 'Week' in cell A6 but got {tab.excel_ref('A6').value}"
+        week_number = tab.excel_ref('A6').fill(DOWN).is_not_blank().is_not_whitespace()
         week_number -= junk
         
         week_commencing = week_number.shift(1, 0)
