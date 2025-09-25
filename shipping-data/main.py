@@ -129,19 +129,24 @@ def Slugize(value):
     return new_value
 
 def VisitType(value):
-    if value[0].isnumeric():
+    if '.' in value:
+        new_value = value.split('.')[-1].strip()
+    elif value[0].isnumeric():
         new_value = value.split(value[0])[-1].strip()
     else:
         new_value = value
 
+    if new_value.endswith('NSA'):
+        new_value = new_value.split(' NSA')[0].strip()
+
     lookup = {
-            'Weekly all visits':'All visits', 
-            'Weekly all unique ships':'All unique ship visits',
-            'Weekly C&T visits':'Cargo and tanker visits', 
-            'Weekly C&T unique ships':'Cargo and tanker unique ship visits',
-            'Weekly Passenger visits':'Passenger ship visits'
+            'weekly all visits':'All visits', 
+            'weekly all unique ships':'All unique ship visits',
+            'weekly c&t visits':'Cargo and tanker visits', 
+            'weekly c&t unique ships':'Cargo and tanker unique ship visits',
+            'weekly passenger visits':'Passenger ship visits'
             }
-    return lookup[new_value]
+    return lookup[new_value.lower()]
 
 def TimeFormatCorrector(value):
     try:
