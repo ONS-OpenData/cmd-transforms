@@ -19,41 +19,36 @@ def transform(files, **kwargs):
 
     all_tabs = []
     for file in files:
-        read_file = loadxlstabs(file)
-        if len(read_file) > 1: # ignoring more than first tab
-            for tab in read_file:
-                if tab.name == 'Data_table':
-                    all_tabs.append([tab])
-                else:
-                    continue
-        else:
-            all_tabs.append(read_file)
+        if file.split('/')[-1].lower().startswith('monthly'):
+            read_file = loadxlstabs(file, ['Monthly GDP'])
+            
+        elif file.split('/')[-1].lower().startswith('rft_'):
+            read_file = loadxlstabs(file, ['IoP and Sectors to 4dp'])
+            
+        elif file.split('/')[-1].lower().startswith('rftds'):
+            read_file = loadxlstabs(file, ['Sheet1'])
+
+        all_tabs.append(read_file)
 
     # above process creates a list of lists
     # need to flatten the lists    
     tabs = [item for subitem in all_tabs for item in subitem]
+    del all_tabs
 
     '''DataBaking'''
     conversionsegments = []
     for tab in tabs:
-        if tab.name == 'Data_table':
-            time = tab.excel_ref('A2').expand(DOWN).filter(contains_string('Month')).fill(DOWN).is_not_blank().is_not_whitespace()
-            
-            section_start_point = tab.excel_ref('A').filter(contains_string('Month'))
-            section = section_start_point.shift(1, 0).expand(RIGHT).is_not_blank().is_not_whitespace()
+        
+        time = tab.excel_ref('A').filter(contains_string('1997JAN')).expand(DOWN).is_not_blank().is_not_whitespace()
+        
+        if tab.name == 'Monthly GDP':
+            assert tab.excel_ref('A4').value == 'Month', f"data has moved in {tab.name}"
+            section = tab.excel_ref('A4').fill(RIGHT).is_not_blank().is_not_whitespace()
             section_labels = section
-            
-        else:    
-            time = tab.excel_ref('A').filter(contains_string('1997JAN')).expand(DOWN).is_not_blank().is_not_whitespace()
-            junk = tab.excel_ref('A').filter(contains_string('Note')).expand(DOWN)
-            junk |= tab.excel_ref('A').filter(contains_string('Source')).expand(DOWN)
-            junk |= tab.excel_ref('A').filter(contains_string('1.  M')).expand(DOWN)
-            time -= junk
-            
-            section_start_point = tab.excel_ref('A').filter(contains_string('Section'))
-            section = section_start_point.shift(1, 0).expand(RIGHT).is_not_blank().is_not_whitespace()
-            section_labels = tab.excel_ref('A6').expand(DOWN) - section_start_point.expand(DOWN)
-            section_labels = section_labels.shift(1, 0).expand(RIGHT).is_not_blank().is_not_whitespace()
+        else:
+            assert tab.excel_ref('A7').value == 'Section', f"data has moved in {tab.name}"
+            section = tab.excel_ref('A7').fill(RIGHT).is_not_blank().is_not_whitespace()
+            section_labels = section.shift(0, -1)
             
         obs = time.waffle(section)
 
