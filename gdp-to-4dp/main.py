@@ -137,6 +137,7 @@ def SicLabels_New_Format(value):
               'Agriculture (A)':'Agriculture',
               'Production (B-E)':'Production Industries',
               'Construction (F) [note1],[note 2]':'Construction',
-              'Services (G-T)':'Index of Services'
+              'Services (G-T)':'Index of Services',
+              'Production industries':'Production Industries'
             }
     return lookup.get(value, value)
